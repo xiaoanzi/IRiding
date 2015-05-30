@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--骑行控制面板-->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fl_timing_contor">
+        <include layout="@layout/timing_rcview_activity"/>
+    </FrameLayout>
+
+    <!--百度地图面板-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fl_timing_baidumap"
+        android:visibility="invisible">
+            <include layout="@layout/timing_location_activity"/>
+        </RelativeLayout>
+
+
+</RelativeLayout>

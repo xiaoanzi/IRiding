@@ -1,0 +1,11 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/ColorPrimary</item>
+        <!--状态栏透明 api 19-->
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+</resources>
