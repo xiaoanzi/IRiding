@@ -20,7 +20,9 @@ import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,12 +50,19 @@ public class MyLocationManager {
 
     private LocalBroadcastManager localBroadcastManager;
 
+    private double distance = 0;// 总距离
+    private float maxSpeed = 0;// 最高速度
+    private float currentSpeed = 0;// 最高速度
+    private DecimalFormat df;
+    private boolean isView = false;// 程序是否为可见状态
+
     public MyLocationManager(MapView mapView){
         this.mMapView = mapView;
         mBaiduMap = mMapView.getMap();// 获得地图的实例
         MapStatusUpdate msu = MapStatusUpdateFactory.zoomTo(15.0f);// 设置地图缩放级别
         mBaiduMap.setMapStatus(msu);
         localBroadcastManager = LocalBroadcastManager.getInstance(MyApplication.getContext()); // 获取广播实例
+        df = new DecimalFormat("#.##");
         initMyLocation();
         initOritationListener();
     }
@@ -69,7 +78,7 @@ public class MyLocationManager {
         LocationClientOption option = new LocationClientOption();// 设置定位的相关配置
         option.setOpenGps(true);// 打开gps
         option.setCoorType("bd09ll"); // 设置坐标类型
-        option.setScanSpan(1000); // 设置发起定位请求的间隔时间
+        option.setScanSpan(2000); // 设置发起定位请求的间隔时间
         mLocationClient.setLocOption(option);
     }
 
@@ -113,20 +122,30 @@ public class MyLocationManager {
                     .longitude(location.getLongitude()).build();
             mCurrentAccracy = location.getRadius();
             mBaiduMap.setMyLocationData(locData);// 设置定位数据
+            LatLng pt1 = new LatLng(mCurrentLantitude, mCurrentLongitude);
             mCurrentLantitude = location.getLatitude();// 绘制线路需要的数据
             mCurrentLongitude = location.getLongitude();// 绘制线路需要的数据
             if (isRiding){
-                LatLng pt = new LatLng(mCurrentLantitude, mCurrentLongitude);
-                pts.add(pt);
+                LatLng pt2 = new LatLng(mCurrentLantitude, mCurrentLongitude);
+                pts.add(pt2);
                 CyclingPoint cyclingPoint = new CyclingPoint(mCurrentLantitude, mCurrentLongitude);
                 mCyclingPoints.add(cyclingPoint);
-                // 更新当前速度
-                try{
-                    Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCAST");
-                    intent.putExtra("Speed",location.getSpeed()+"");
-                    localBroadcastManager.sendBroadcast(intent); // 发送本地广播
-                 }catch (Exception e){
-                    Log.e("tagggg",e.toString());
+                distance += DistanceUtil. getDistance(pt1, pt2);// 单位米
+                currentSpeed = location.getSpeed();
+                if (maxSpeed < currentSpeed){
+                    maxSpeed = currentSpeed;
+                }
+                // 不可见状态就不发送广播通知更新页面
+                if (isView){
+                    try{
+                        Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCAST");
+                        intent.putExtra("Speed",df.format(currentSpeed));
+                        intent.putExtra("Distance",df.format(distance/1000));
+                        intent.putExtra("MaxSpeed",df.format(maxSpeed));
+                        localBroadcastManager.sendBroadcast(intent); // 发送本地广播
+                    }catch (Exception e){
+                        Log.e("tagggg", e.toString());
+                    }
                 }
             }
             MyLocationConfiguration config = new MyLocationConfiguration(
@@ -220,10 +239,12 @@ public class MyLocationManager {
         // 在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
         mMapView.onResume();
         locationClientStart();
+        isView = true;
     }
 
     public void onPause(){
         // 在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
+        isView = false;
         mMapView.onPause();
     }
 }

@@ -71,6 +71,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
 
     private long mBaseTime = SystemClock.elapsedRealtime();
     private long recordingTime = 0;// 记录下来的总时间
+    private long ridingTime = 0;// 记录下来骑行时间
     private boolean statusRun = false;
 
     private View infoContainer = null;
@@ -150,7 +151,11 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     class LocalReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            tv_timing_current.setText(intent.getStringExtra("speed"));
+//            ridingTime = (chronometer.getBase() - chronometerRest.getBase());
+            tv_timing_average.setText(ridingTime+"");
+            tv_timing_current.setText(intent.getStringExtra("Speed"));
+            tv_timing_maximum.setText(intent.getStringExtra("MaxSpeed"));
+            tv_timing_distance.setText(intent.getStringExtra("Distance"));
         }
     }
 
