@@ -17,7 +17,6 @@ import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 public class ScrollFragment extends Fragment {
 
     private ObservableScrollView mScrollView;
-
     public static ScrollFragment newInstance() {
         return new ScrollFragment();
     }
@@ -33,5 +32,10 @@ public class ScrollFragment extends Fragment {
         mScrollView = (ObservableScrollView) view.findViewById(R.id.scrollView);
 
         MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView, null);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 }

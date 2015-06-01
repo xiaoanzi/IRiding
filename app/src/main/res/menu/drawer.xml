@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    <item
+        android:id="@+id/navigation_subheader"
+        android:title="这是一组">
+        <menu>
+            <item
+                android:id="@+id/navigation_sub_item_1"
+                android:icon="@drawable/abc_btn_rating_star_off_mtrl_alpha"
+                android:title="收藏"/>
+            <item
+                android:id="@+id/navigation_sub_item_2"
+                android:icon="@drawable/abc_btn_rating_star_off_mtrl_alpha"
+                android:title="立标"/>
+        </menu>
+    </item>
+</menu>

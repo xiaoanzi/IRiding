@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,6 +23,9 @@ public class HomeActivity extends BaseActivity{
     private MaterialViewPager mViewPager;
     private Toolbar toolbar;
     private ImageView imageView;
+    private ImageView navImage;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private DrawerLayout mDrawerLayout;
     @Override
     public void setContentView() {
         setContentView(R.layout.home_activity);
@@ -30,6 +35,7 @@ public class HomeActivity extends BaseActivity{
     public void findViews() {
         mViewPager = (MaterialViewPager) findViewById(R.id.materialViewPager);
         imageView = (ImageView) findViewById(R.id.logo_white);
+        navImage = (ImageView) findViewById(R.id.nav_icon);
         Bitmap src = BitmapFactory.decodeResource(getResources(), R.drawable.myuser);
         Bitmap dst;
 //将长方形图片裁剪成正方形图片
@@ -44,12 +50,29 @@ public class HomeActivity extends BaseActivity{
         roundedBitmapDrawable.setCornerRadius(dst.getWidth() / 2); //设置圆角半径为正方形边长的一半
         roundedBitmapDrawable.setAntiAlias(true);
         imageView.setImageDrawable(roundedBitmapDrawable);
+        navImage.setImageDrawable(roundedBitmapDrawable);
         toolbar = mViewPager.getToolbar();
         toolbar.setTitle(R.string.app_name);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
+            mDrawerLayout = (DrawerLayout)findViewById(R.id.draw_layout);
+            mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,toolbar,0,0);
 
+            mDrawerLayout.setDrawerListener(mDrawerToggle);
+            mDrawerToggle.syncState();
             final ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setElevation(1);
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowHomeEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setDisplayUseLogoEnabled(false);
+                actionBar.setHomeButtonEnabled(true);
+            }
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setElevation(1);
+            }
+
             if (actionBar != null) {
                 actionBar.setDisplayHomeAsUpEnabled(true);
                 actionBar.setDisplayShowHomeEnabled(true);
