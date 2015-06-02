@@ -15,7 +15,7 @@
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/cardMarginVertical"
             android:layout_marginLeft="@dimen/cardMarginHorizontal"
             android:layout_marginRight="@dimen/cardMarginHorizontal"
@@ -26,25 +26,25 @@
             <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center">
+                android:gravity="center"
+                android:padding="16dp">
                 <TableRow>
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="总里程(KM)"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:textSize="16sp"
-                        android:id="@+id/textview2"/>
+                        android:textSize="16sp" />
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="总时间(H)"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:textSize="16sp"/>
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="总天数(D)"
                         android:layout_weight="1"
@@ -53,30 +53,105 @@
                 </TableRow>
                 <TableRow>
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="123.98"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:textSize="16sp"/>
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="28"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:textSize="16sp"/>
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="12"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:textSize="16sp"/>
                 </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text=" "
+                        android:gravity="left" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="个人最高速度(KM/H)"
+                        android:layout_weight="2" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="58"
+                        android:layout_weight="1"
+                        android:gravity="center" />
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="一次最长距离(KM)"
+                        android:layout_weight="2" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="158"
+                        android:layout_weight="1"
+                        android:gravity="center" />
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="一次最长时间(H)"
+                        android:layout_weight="2" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="10:05:24"
+                        android:layout_weight="1"
+                        android:gravity="center" />
+                </TableRow>
             </TableLayout>
 
         </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="420dp"
+            android:layout_marginBottom="@dimen/cardMarginVertical"
+            android:layout_marginLeft="@dimen/cardMarginHorizontal"
+            android:layout_marginRight="@dimen/cardMarginHorizontal"
+            android:layout_marginTop="@dimen/cardMarginVertical"
+            android:background="@android:color/white"
+            app:cardElevation="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="最近骑行记录："/>
+                <ListView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/testListView"
+                    android:divider="#989898"
+                    android:dividerHeight="1px">
+                </ListView>
+            </LinearLayout>
+            </android.support.v7.widget.CardView>
     </LinearLayout>
 
 </com.github.ksoichiro.android.observablescrollview.ObservableScrollView>

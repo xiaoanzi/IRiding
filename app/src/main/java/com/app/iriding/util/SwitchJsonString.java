@@ -8,10 +8,10 @@ import com.google.gson.JsonArray;
 import java.util.List;
 
 /**
- * Created by 王海 on 2015/5/30.
+ * Created by 鐜嬫捣 on 2015/5/30.
  */
 public class SwitchJsonString {
-    // 把CyclingPoint数组坐标转换为String
+    // 鎶奀yclingPoint杞崲涓篠tring
     public String toCyclingPointString(List<CyclingPoint> cyclingPoints){
         Gson gson = new GsonBuilder().create();
         JsonArray myCustomArray = gson.toJsonTree(cyclingPoints).getAsJsonArray();

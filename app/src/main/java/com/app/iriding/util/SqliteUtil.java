@@ -11,16 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by 王海 on 2015/5/30.
+ * Created by 鐜嬫捣 on 2015/5/30.
  */
 public class SqliteUtil {
-    // 获取骑行列表
+    // 寰楀埌鎵�鏈夌殑楠戣璁板綍
     public List<CyclingRecord> selectAllCyclingRecord(){
         List<CyclingRecord> cyclingRecords = new Select().from(CyclingRecord.class).execute();
         return cyclingRecords;
     }
 
-    //获取单个骑行记录
+    //寰楀埌鏌愪竴娆＄殑楠戣璁板綍
     public CyclingRecord selectSingleCyclingRecord(int id){
         CyclingRecord cyclingRecord = new Select().from(CyclingRecord.class)
                 .where("Id = ?", id)

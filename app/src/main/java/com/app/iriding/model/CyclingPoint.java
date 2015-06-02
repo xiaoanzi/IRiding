@@ -3,7 +3,7 @@ package com.app.iriding.model;
 import java.io.Serializable;
 
 /**
- * Created by Íõº£ on 2015/5/30.
+ * Created by ç‹æµ· on 2015/5/30.
  */
 public class CyclingPoint implements Serializable{
     private double latitude;

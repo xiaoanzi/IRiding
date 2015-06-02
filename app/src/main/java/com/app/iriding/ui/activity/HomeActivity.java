@@ -17,7 +17,7 @@ import com.app.iriding.R;
 import com.github.florent37.materialviewpager.MaterialViewPager;
 
 /**
- * Created by Õı∫£ on 2015/6/1.
+ * Created by ÁéãÊµ∑ on 2015/6/1.
  */
 public class HomeActivity extends BaseActivity{
     private MaterialViewPager mViewPager;
@@ -38,7 +38,7 @@ public class HomeActivity extends BaseActivity{
         navImage = (ImageView) findViewById(R.id.nav_icon);
         Bitmap src = BitmapFactory.decodeResource(getResources(), R.drawable.myuser);
         Bitmap dst;
-//Ω´≥§∑Ω–ŒÕº∆¨≤√ºÙ≥…’˝∑Ω–ŒÕº∆¨
+        //Â∞ÜÈïøÊñπÂΩ¢ÂõæÁâáË£ÅÂâ™ÊàêÊ≠£ÊñπÂΩ¢ÂõæÁâá
         if (src.getWidth() >= src.getHeight()){
             dst = Bitmap.createBitmap(src, src.getWidth()/2 - src.getHeight()/2, 0, src.getHeight(), src.getHeight()
             );
@@ -47,7 +47,7 @@ public class HomeActivity extends BaseActivity{
             );
         }
         RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), dst);
-        roundedBitmapDrawable.setCornerRadius(dst.getWidth() / 2); //…Ë÷√‘≤Ω«∞Îæ∂Œ™’˝∑Ω–Œ±ﬂ≥§µƒ“ª∞Î
+        roundedBitmapDrawable.setCornerRadius(dst.getWidth() / 2);//ËÆæÁΩÆÂúÜËßíÂçäÂæÑ‰∏∫Ê≠£ÊñπÂΩ¢ËæπÈïøÁöÑ‰∏ÄÂçä
         roundedBitmapDrawable.setAntiAlias(true);
         imageView.setImageDrawable(roundedBitmapDrawable);
         navImage.setImageDrawable(roundedBitmapDrawable);
@@ -87,7 +87,9 @@ public class HomeActivity extends BaseActivity{
 
             @Override
             public Fragment getItem(int position) {
-                switch (position % 3) {
+                switch (position % 2) {
+                    case 1:
+                        return TravelRecyclerViewFragment.newInstance();
                     default:
                         return ScrollFragment.newInstance();
                 }
@@ -104,16 +106,12 @@ public class HomeActivity extends BaseActivity{
 
                 int color = 0;
                 String imageUrl = "";
-                switch (position % 3) {
+                switch (position % 2) {
                     case 0:
                         imageUrl = "http://pic1.ooopic.com/00/87/68/91b1OOOPIC4e.jpg";
-                        color = getResources().getColor(R.color.blue);
+                        color = getResources().getColor(R.color.ColorPrimary);
                         break;
                     case 1:
-                        imageUrl = "https://fs01.androidpit.info/a/63/0e/android-l-wallpapers-630ea6-h900.jpg";
-                        color = getResources().getColor(R.color.green);
-                        break;
-                    case 2:
                         imageUrl = "http://www.droid-life.com/wp-content/uploads/2014/10/lollipop-wallpapers10.jpg";
                         color = getResources().getColor(R.color.cyan);
                         break;
@@ -126,18 +124,16 @@ public class HomeActivity extends BaseActivity{
 
             @Override
             public int getCount() {
-                return 3;
+                return 2;
             }
 
             @Override
             public CharSequence getPageTitle(int position) {
-                switch (position % 3) {
+                switch (position % 2) {
                     case 0:
                         return getString(R.string.tab_view1);
                     case 1:
                         return getString(R.string.tab_view2);
-                    case 2:
-                        return getString(R.string.tab_view3);
                 }
                 return "";
             }

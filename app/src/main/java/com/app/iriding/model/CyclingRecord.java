@@ -8,22 +8,23 @@ import com.baidu.mapapi.model.LatLng;
 import java.util.List;
 
 /**
- * Created by Íõº£ on 2015/5/30.
+ * Created by ç‹æµ· on 2015/5/30.
  */
 @Table(name = "CyclingRecord")
 public class CyclingRecord extends Model{
     @Column(name = "totalTime")
-    private String totalTime;// ×ÜÊ±¼ä
+    private String totalTime;// æ€»æ—¶é—´
     @Column(name = "restTime")
-    private String restTime;// ĞİÏ¢Ê±¼ä
+    private String restTime;// æ­‡æ¯æ—¶é—´
     @Column(name = "distance")
-    private String distance;// ¾àÀë
+    private String distance;// æ€»è·ç¦»
     @Column(name = "averageSpeed")
-    private String averageSpeed;// Æ½¾ÖËÙ¶È
+    private String averageSpeed;// å¹³å‡é€Ÿåº¦
     @Column(name = "maxSpeed")
-    private String maxSpeed;// ×î¸ßËÙ¶È
+    private String maxSpeed;// æœ€é«˜é€Ÿåº¦
+    private String mdateTime;
     @Column(name = "totalPoint")
-    private String totalPoint;// ×ÜµÄ¼ÇÂ¼µÄµã
+    private String totalPoint;// ç»˜å›¾çš„ç‚¹
 
     private List<LatLng> latLngs;
 
@@ -81,5 +82,13 @@ public class CyclingRecord extends Model{
 
     public void setLatLngs(List<LatLng> latLngs) {
         this.latLngs = latLngs;
+    }
+
+    public String getMdateTime() {
+        return mdateTime;
+    }
+
+    public void setMdateTime(String mdateTime) {
+        this.mdateTime = mdateTime;
     }
 }
