@@ -23,14 +23,14 @@ public class TraveListViewAdapter extends ArrayAdapter<CyclingRecord> {
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        CyclingRecord cyclingRecord = getItem(position); // 获取当前项的Fruit实例
+        CyclingRecord cyclingRecord = getItem(position);
         View view= LayoutInflater.from(getContext()).inflate(resourceId,null);
-        TextView textView1 =(TextView) view.findViewById(R.id.tv_travel_item_distance);
-        TextView textView2 =(TextView) view.findViewById(R.id.tv_travel_item_totalTime);
-        TextView textView3 =(TextView) view.findViewById(R.id.tv_travel_item_date);
-        textView1.setText(cyclingRecord.getDistance());
-        textView2.setText(cyclingRecord.getTotalTime());
-        textView3.setText(cyclingRecord.getMdateTime());
+        TextView item_distance =(TextView) view.findViewById(R.id.tv_travel_item_distance);
+        TextView item_totalTime =(TextView) view.findViewById(R.id.tv_travel_item_totalTime);
+        TextView item_date =(TextView) view.findViewById(R.id.tv_travel_item_date);
+        item_distance.setText(cyclingRecord.getDistance()+"");
+        item_totalTime.setText(cyclingRecord.getTotalTimeStr());
+        item_date.setText(cyclingRecord.getMdateTimeStr());
         return view;
     }
 }

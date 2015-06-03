@@ -17,19 +17,21 @@ import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.iriding.R;
 import com.app.iriding.model.CyclingRecord;
 import com.app.iriding.service.MyLocationManager;
 import com.app.iriding.service.TestService;
-import com.app.iriding.util.SwitchJsonString;
+import com.app.iriding.util.SqliteUtil;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.model.LatLng;
 
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import at.markushi.ui.RevealColorView;
 
@@ -84,7 +86,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     private IntentFilter intentFilter;
     private LocalReceiver localReceiver;
     private LocalBroadcastManager localBroadcastManager;
-
+    private NumberFormat ddf1;
 
     @Override
     public void setContentView() {
@@ -121,6 +123,8 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void getData() {
+        ddf1 = NumberFormat.getNumberInstance();
+        ddf1.setMaximumFractionDigits(2);
         localBroadcastManager = LocalBroadcastManager.getInstance(this); // 获取实例
         intentFilter = new IntentFilter();
         intentFilter.addAction("com.example.broadcasttest.LOCAL_BROADCAST");
@@ -151,8 +155,8 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     class LocalReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-//            ridingTime = (chronometer.getBase() - chronometerRest.getBase());
-            tv_timing_average.setText(ridingTime+"");
+            ridingTime = ((SystemClock.elapsedRealtime() - chronometer.getBase()) - recordingTime);
+            tv_timing_average.setText(getAvSpeed(ridingTime, Double.parseDouble(intent.getStringExtra("Distance"))));
             tv_timing_current.setText(intent.getStringExtra("Speed"));
             tv_timing_maximum.setText(intent.getStringExtra("MaxSpeed"));
             tv_timing_distance.setText(intent.getStringExtra("Distance"));
@@ -167,7 +171,8 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         final Point pi = getLocationInView(revealColorView, view);
         switch (view.getId()){
             case R.id.ib_timing_start : // 开始骑行
-                myLocationManager.changeIsRiding(true);// 打开定位
+                myLocationManager.changeIsRiding(true);
+                myLocationManager.locationClientStart();// 开启定位
                 myLocationManager.locationClientStart();// 打开传感器
                 chronometer.setBase(SystemClock.elapsedRealtime());
                 chronometer.start();
@@ -181,15 +186,18 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                 break;
             case R.id.ib_timing_pause : // 暂停骑行
                 if (statusRun){
+                    myLocationManager.changeIsRiding(false);
                     chronometerRest.setBase(SystemClock.elapsedRealtime() - recordingTime);
                     chronometerRest.start();
                     statusRun = false;
                     ib_timing_pause.setVisibility(View.INVISIBLE);
                     ib_timing_continue.setVisibility(View.VISIBLE);// 继续按钮显示出来
+
                 }
                 break;
             case R.id.ib_timing_continue : // 继续骑行
                 if (!statusRun){
+                    myLocationManager.changeIsRiding(true);
                     chronometerRest.stop();
                     recordingTime = SystemClock.elapsedRealtime()- chronometerRest.getBase();// 保存这次记录了的时间
                     statusRun = true;
@@ -199,6 +207,9 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                 break;
             case R.id.ib_timing_finish : // 完成骑行
                 myLocationManager.locationClientStop();// 关闭定位
+                myLocationManager.changeIsRiding(false);
+                long ltotalTime = SystemClock.elapsedRealtime() - chronometer.getBase();// 获取到总的时间
+                long lrestTime = SystemClock.elapsedRealtime() - chronometerRest.getBase();// 获取到休息的时间
                 mBaseTime = SystemClock.elapsedRealtime();
                 chronometer.setBase(mBaseTime);
                 chronometer.stop();
@@ -211,18 +222,17 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                 ib_timing_start.setVisibility(View.VISIBLE);// 开始按钮消失
                 ib_timing_finish.setVisibility(View.INVISIBLE);// 开始按钮消失
                 isRiding = false;
-                Toast.makeText(getApplicationContext(), "" + pts.size(), Toast.LENGTH_SHORT).show();
                 myLocationManager.overlayOptions(getResources().getColor(R.color.ColorPrimary));// 绘制折线
-                //*********************************************************
-                SwitchJsonString switchJsonString = new SwitchJsonString();
-                String point = switchJsonString.toCyclingPointString(myLocationManager.getCyclingPoints());
-                CyclingRecord cyclingRecord = new CyclingRecord();
-                cyclingRecord.setTotalPoint(point);
-                cyclingRecord.setAverageSpeed("0");
-                cyclingRecord.setDistance("0");
-                cyclingRecord.setMaxSpeed("0");
-                cyclingRecord.setRestTime("00:00:00");
-                cyclingRecord.setTotalTime("00:00:00");
+                //*********************************************************应该放在一个线程里面执行
+                SimpleDateFormat sdf= new SimpleDateFormat("HH:mm:ss");
+                String sDateTimeTotal = sdf.format(ltotalTime - TimeZone.getDefault().getRawOffset());// 减去时间差
+                String sDateTimeRest = sdf.format(lrestTime - TimeZone.getDefault().getRawOffset());
+                CyclingRecord cyclingRecord = myLocationManager.getCyclingRecord();
+                cyclingRecord.setTotalTime(ltotalTime);
+                cyclingRecord.setRestTime(lrestTime);
+                cyclingRecord.setTotalTimeStr(sDateTimeTotal);
+                cyclingRecord.setRestTimeStr(sDateTimeRest);
+                cyclingRecord.setAverageSpeed(Double.parseDouble(getAvSpeed(ltotalTime - lrestTime, cyclingRecord.getDistance())));
                 cyclingRecord.save();
                 Intent intent11 = new Intent(this, TestService.class);
                 stopService(intent11);
@@ -276,6 +286,11 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         }
     }
 
+    // 得到保留两位数的平均速度KM/H（毫秒，公里）
+    public String getAvSpeed(double t, double s){
+        String v = ddf1.format(s / (t/3600000));
+        return v;
+    }
     // 切换百度地图 显示或隐藏
     public void toggleInformationView(Point p) {
         //final View infoContainer = findViewById(R.id.fl_timing_baidumap);
@@ -288,6 +303,10 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
             reveal.setDuration(500);
             infoContainer.setVisibility(View.VISIBLE);
             reveal.start();
+            CyclingRecord cyclingRecord = new CyclingRecord();
+            SqliteUtil sqliteUtil = new SqliteUtil();
+            cyclingRecord = sqliteUtil.selectSingleCyclingRecord(1);
+            Log.e("TAGGG",cyclingRecord.getMdateTime()+" "+cyclingRecord.getAverageSpeed());
         } else {
             Animator reveal = ViewAnimationUtils.createCircularReveal(
                     infoContainer, p.x, p.y, radius, 0);
@@ -339,7 +358,6 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         Log.e("Tag", "destory");
         super.onDestroy();
         // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
-        myLocationManager.onDestroy();
         mMapView.onDestroy();
         mMapView = null;
         localBroadcastManager.unregisterReceiver(localReceiver);

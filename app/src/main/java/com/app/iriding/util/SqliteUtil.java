@@ -20,6 +20,14 @@ public class SqliteUtil {
         return cyclingRecords;
     }
 
+    // 得到倒数5个骑行记录
+    public List<CyclingRecord> selectLastCyclingRecord(){
+        List<CyclingRecord> cyclingRecords = new Select("Id,totalTimeStr,distance,mdateTimeStr").from(CyclingRecord.class)
+                .orderBy("Id DESC")
+                .execute();
+        return cyclingRecords;
+    }
+
     //得到某一次的骑行记录
     public CyclingRecord selectSingleCyclingRecord(int id){
         CyclingRecord cyclingRecord = new Select().from(CyclingRecord.class)

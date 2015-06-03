@@ -2,6 +2,11 @@
 <project version="4">
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" defaultCharsetForPropertiesFiles="UTF-8">
     <file url="file://$PROJECT_DIR$/app/src/main/java/com/app/iriding/ui/activity/ScrollFragment.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable-hdpi/ic_add_white_24dp.png" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_add_white_24dp.png" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/ic_add_white_24dp.png" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable-xxhdpi/ic_add_white_24dp.png" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable-xxxhdpi/ic_add_white_24dp.png" charset="GBK" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/myuser.png" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_scroll.xml" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/layout/header_logo.xml" charset="UTF-8" />

@@ -15,6 +15,7 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.activity.TimingActivity"/>
 
         <service android:name=".service.TestService"/>
         <!-- 百度地图API KEY-->

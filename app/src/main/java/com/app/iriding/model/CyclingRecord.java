@@ -13,58 +13,97 @@ import java.util.List;
 @Table(name = "CyclingRecord")
 public class CyclingRecord extends Model{
     @Column(name = "totalTime")
-    private String totalTime;// 总时间
+    private long totalTime;// 总时间(毫秒)
     @Column(name = "restTime")
-    private String restTime;// 歇息时间
+    private long restTime;// 歇息时间(毫秒)
+    @Column(name = "totalTimeStr")
+    private String totalTimeStr;// 总时间(HH:mm:ss)
+    @Column(name = "restTimeStr")
+    private String restTimeStr;// 歇息时间(HH:mm:ss)
     @Column(name = "distance")
-    private String distance;// 总距离
+    private double distance;// 总距离
     @Column(name = "averageSpeed")
-    private String averageSpeed;// 平均速度
+    private double averageSpeed;// 平均速度
     @Column(name = "maxSpeed")
-    private String maxSpeed;// 最高速度
-    private String mdateTime;
+    private double maxSpeed;// 最高速度
+    @Column(name = "mdateTime")
+    private long mdateTime;// 日期(秒)
+    @Column(name = "mdateTimeStr")
+    private String mdateTimeStr;// 日期的string类型
     @Column(name = "totalPoint")
     private String totalPoint;// 绘图的点
 
     private List<LatLng> latLngs;
 
-    public String getTotalTime() {
+    public long getTotalTime() {
         return totalTime;
     }
 
-    public void setTotalTime(String totalTime) {
+    public void setTotalTime(long totalTime) {
         this.totalTime = totalTime;
     }
 
-    public String getRestTime() {
+    public long getRestTime() {
         return restTime;
     }
 
-    public void setRestTime(String restTime) {
+    public void setRestTime(long restTime) {
         this.restTime = restTime;
     }
 
-    public String getDistance() {
-        return distance;
+    public String getTotalTimeStr() {
+        return totalTimeStr;
     }
 
-    public void setDistance(String distance) {
-        this.distance = distance;
+    public void setTotalTimeStr(String totalTimeStr) {
+        this.totalTimeStr = totalTimeStr;
     }
 
-    public String getAverageSpeed() {
+    public String getRestTimeStr() {
+        return restTimeStr;
+    }
+
+    public void setRestTimeStr(String restTimeStr) {
+        this.restTimeStr = restTimeStr;
+    }
+
+    public double getAverageSpeed() {
         return averageSpeed;
     }
 
-    public void setAverageSpeed(String averageSpeed) {
+    public void setAverageSpeed(double averageSpeed) {
         this.averageSpeed = averageSpeed;
     }
 
-    public String getMaxSpeed() {
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public String getMdateTimeStr() {
+        return mdateTimeStr;
+    }
+
+    public void setMdateTimeStr(String mdateTimeStr) {
+        this.mdateTimeStr = mdateTimeStr;
+    }
+
+    public long getMdateTime() {
+        return mdateTime;
+    }
+
+    public void setMdateTime(long mdateTime) {
+        this.mdateTime = mdateTime;
+    }
+
+    public double getMaxSpeed() {
         return maxSpeed;
     }
 
-    public void setMaxSpeed(String maxSpeed) {
+    public void setMaxSpeed(double maxSpeed) {
         this.maxSpeed = maxSpeed;
     }
 
@@ -82,13 +121,5 @@ public class CyclingRecord extends Model{
 
     public void setLatLngs(List<LatLng> latLngs) {
         this.latLngs = latLngs;
-    }
-
-    public String getMdateTime() {
-        return mdateTime;
-    }
-
-    public void setMdateTime(String mdateTime) {
-        this.mdateTime = mdateTime;
     }
 }

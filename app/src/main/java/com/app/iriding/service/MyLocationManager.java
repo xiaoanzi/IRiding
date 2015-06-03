@@ -5,8 +5,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.app.iriding.model.CyclingPoint;
+import com.app.iriding.model.CyclingRecord;
 import com.app.iriding.ui.listener.MyOrientationListener;
 import com.app.iriding.util.MyApplication;
+import com.app.iriding.util.SwitchJsonString;
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
@@ -22,8 +24,10 @@ import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,7 +57,7 @@ public class MyLocationManager {
     private double distance = 0;// 总距离
     private float maxSpeed = 0;// 最高速度
     private float currentSpeed = 0;// 最高速度
-    private DecimalFormat df;
+    private NumberFormat ddf1;
     private boolean isView = false;// 程序是否为可见状态
 
     public MyLocationManager(MapView mapView){
@@ -62,7 +66,8 @@ public class MyLocationManager {
         MapStatusUpdate msu = MapStatusUpdateFactory.zoomTo(15.0f);// 设置地图缩放级别
         mBaiduMap.setMapStatus(msu);
         localBroadcastManager = LocalBroadcastManager.getInstance(MyApplication.getContext()); // 获取广播实例
-        df = new DecimalFormat("#.##");
+        ddf1 = NumberFormat.getNumberInstance();
+        ddf1.setMaximumFractionDigits(2);
         initMyLocation();
         initOritationListener();
     }
@@ -139,12 +144,12 @@ public class MyLocationManager {
                 if (isView){
                     try{
                         Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCAST");
-                        intent.putExtra("Speed",df.format(currentSpeed));
-                        intent.putExtra("Distance",df.format(distance/1000));
-                        intent.putExtra("MaxSpeed",df.format(maxSpeed));
+                        intent.putExtra("Speed",ddf1.format(currentSpeed));
+                        intent.putExtra("Distance",ddf1.format(distance/1000));
+                        intent.putExtra("MaxSpeed",ddf1.format(maxSpeed));
                         localBroadcastManager.sendBroadcast(intent); // 发送本地广播
                     }catch (Exception e){
-                        Log.e("tagggg", e.toString());
+                        Log.e("broadcasttestError", e.toString());
                     }
                 }
             }
@@ -173,6 +178,22 @@ public class MyLocationManager {
 
     public List<CyclingPoint> getCyclingPoints(){
         return mCyclingPoints;
+    }
+
+    // 返回CyclingRecord用于保存
+    public CyclingRecord getCyclingRecord(){
+        Date date = new Date();
+        long lSysTime1 = date.getTime() / 1000;   //得到秒数，Date类型的getTime()返回毫秒数
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+ //       java.util.Date dt = new Date(lSysTime1 * 1000);
+        String sDateTime = sdf.format(date);
+        CyclingRecord cyclingRecord = new CyclingRecord();
+        cyclingRecord.setTotalPoint(SwitchJsonString.toCyclingPointString(mCyclingPoints));
+        cyclingRecord.setDistance(Double.parseDouble(ddf1.format(distance / 1000)));
+        cyclingRecord.setMaxSpeed(Double.parseDouble(ddf1.format(maxSpeed)));
+        cyclingRecord.setMdateTime(lSysTime1);
+        cyclingRecord.setMdateTimeStr(sDateTime);
+        return cyclingRecord;
     }
 
     public void changeConfiguration(MyLocationConfiguration.LocationMode locationMode){
@@ -229,6 +250,7 @@ public class MyLocationManager {
         isRiding = status;
     }
 
+    // mMapView指向的是同一个地址
     public void onDestroy(){
         // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
         mMapView.onDestroy();

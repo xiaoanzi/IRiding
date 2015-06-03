@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class SwitchJsonString {
     // 把CyclingPoint转换为String
-    public String toCyclingPointString(List<CyclingPoint> cyclingPoints){
+    public static String toCyclingPointString(List<CyclingPoint> cyclingPoints){
         Gson gson = new GsonBuilder().create();
         JsonArray myCustomArray = gson.toJsonTree(cyclingPoints).getAsJsonArray();
         return myCustomArray.toString();
