@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -91,7 +92,7 @@ public class HomeActivity extends BaseActivity{
                     case 1:
                         return TravelRecyclerViewFragment.newInstance();
                     default:
-                        return ScrollFragment.newInstance();
+                        return TravelScrollFragment.newInstance();
                 }
             }
 
@@ -152,5 +153,29 @@ public class HomeActivity extends BaseActivity{
     @Override
     public void showContent() {
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.e("Home", "onDestroy");
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPostResume() {
+        Log.e("Home", "onPostResume");
+        super.onPostResume();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e("Home", "onStop");
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.e("Home", "onPause");
+        super.onPause();
     }
 }

@@ -25,29 +25,29 @@ import java.util.List;
 /**
  * Created by florentchampigny on 24/04/15.
  */
-public class ScrollFragment extends Fragment {
+public class TravelScrollFragment extends Fragment {
 
     private ObservableScrollView mScrollView;
-    private ListView testListView;
+    private ListView lv_travel_fiverecord;
     private List<CyclingRecord> cyclingRecords = new ArrayList<CyclingRecord>();
     private TextView tv_travel_recently;
     private FloatingActionButton fb_travel_scadd;
     private SqliteUtil sqliteUtil = new SqliteUtil();
-    public static ScrollFragment newInstance() {
-        return new ScrollFragment();
+    public static TravelScrollFragment newInstance() {
+        return new TravelScrollFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_scroll, container, false);
+        return inflater.inflate(R.layout.fragment_travel_scroll, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mScrollView = (ObservableScrollView) view.findViewById(R.id.scrollView);
+        mScrollView = (ObservableScrollView) view.findViewById(R.id.sc_travel_scrollView);
         tv_travel_recently = (TextView) view.findViewById(R.id.tv_travel_recently);
-        testListView = (ListView) view.findViewById(R.id.testListView);
+        lv_travel_fiverecord = (ListView) view.findViewById(R.id.lv_travel_fiverecord);
         fb_travel_scadd = (FloatingActionButton) view.findViewById(R.id.fb_travel_scadd);
 
         MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView, null);
@@ -64,25 +64,25 @@ public class ScrollFragment extends Fragment {
             }
         });
         cyclingRecords.clear();
-        cyclingRecords = sqliteUtil.selectLastCyclingRecord();
+        cyclingRecords = sqliteUtil.selectLastCyclingRecord(0,5);
         if (cyclingRecords.size() == 0){
             tv_travel_recently.setText("暂无骑行记录，点击右边'+'按钮开启一次骑行吧！");
             return;
         }
+
         TraveListViewAdapter traveListViewAdapter = new TraveListViewAdapter(MyApplication.getContext(),R.layout.travel_item_listview,cyclingRecords);
 
         int totalHeight = 0;
         for (int i = 0; i < traveListViewAdapter.getCount(); i++) {
-            View listItem = traveListViewAdapter.getView(i, null, testListView);
+            View listItem = traveListViewAdapter.getView(i, null, lv_travel_fiverecord);
             listItem.measure(0, 0);
             totalHeight += listItem.getMeasuredHeight();
         }
-
-        ViewGroup.LayoutParams params = testListView.getLayoutParams();
+        ViewGroup.LayoutParams params = lv_travel_fiverecord.getLayoutParams();
         params.height = totalHeight
-                + (testListView.getDividerHeight() * (traveListViewAdapter.getCount() - 1));
-        testListView.setLayoutParams(params);
+                + (lv_travel_fiverecord.getDividerHeight() * (traveListViewAdapter.getCount() - 1));
+        lv_travel_fiverecord.setLayoutParams(params);
 
-        testListView.setAdapter(traveListViewAdapter);
+        lv_travel_fiverecord.setAdapter(traveListViewAdapter);
     }
 }

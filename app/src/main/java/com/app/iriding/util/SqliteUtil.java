@@ -21,8 +21,9 @@ public class SqliteUtil {
     }
 
     // 得到倒数5个骑行记录
-    public List<CyclingRecord> selectLastCyclingRecord(){
+    public List<CyclingRecord> selectLastCyclingRecord(int start,int length){
         List<CyclingRecord> cyclingRecords = new Select("Id,totalTimeStr,distance,mdateTimeStr").from(CyclingRecord.class)
+                .limit(""+start+", "+length+"")
                 .orderBy("Id DESC")
                 .execute();
         return cyclingRecords;

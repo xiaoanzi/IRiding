@@ -1,7 +1,5 @@
 package com.app.iriding.ui.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +10,6 @@ import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -22,7 +19,7 @@ import com.app.iriding.R;
 import com.app.iriding.model.CyclingRecord;
 import com.app.iriding.service.MyLocationManager;
 import com.app.iriding.service.TestService;
-import com.app.iriding.util.SqliteUtil;
+import com.app.iriding.util.MyApplication;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.model.LatLng;
@@ -95,6 +92,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void findViews() {
+        Log.e("Tag", "onCreat");
         chronometer = (Chronometer) findViewById(R.id.ch_timing_time);
         chronometerRest = (Chronometer) findViewById(R.id.ch_timing_rest);
         tv_timing_distance = (TextView) findViewById(R.id.tv_timing_distance);
@@ -206,36 +204,44 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                 }
                 break;
             case R.id.ib_timing_finish : // 完成骑行
-                myLocationManager.locationClientStop();// 关闭定位
-                myLocationManager.changeIsRiding(false);
-                long ltotalTime = SystemClock.elapsedRealtime() - chronometer.getBase();// 获取到总的时间
-                long lrestTime = SystemClock.elapsedRealtime() - chronometerRest.getBase();// 获取到休息的时间
-                mBaseTime = SystemClock.elapsedRealtime();
-                chronometer.setBase(mBaseTime);
-                chronometer.stop();
-                chronometerRest.setBase(mBaseTime);
-                chronometerRest.stop();
-                recordingTime = 0;
-                statusRun = false;
-                ib_timing_continue.setVisibility(View.INVISIBLE);
-                ib_timing_pause.setVisibility(View.INVISIBLE);// 暂停按钮显示出来
-                ib_timing_start.setVisibility(View.VISIBLE);// 开始按钮消失
-                ib_timing_finish.setVisibility(View.INVISIBLE);// 开始按钮消失
-                isRiding = false;
-                myLocationManager.overlayOptions(getResources().getColor(R.color.ColorPrimary));// 绘制折线
-                //*********************************************************应该放在一个线程里面执行
-                SimpleDateFormat sdf= new SimpleDateFormat("HH:mm:ss");
-                String sDateTimeTotal = sdf.format(ltotalTime - TimeZone.getDefault().getRawOffset());// 减去时间差
-                String sDateTimeRest = sdf.format(lrestTime - TimeZone.getDefault().getRawOffset());
-                CyclingRecord cyclingRecord = myLocationManager.getCyclingRecord();
-                cyclingRecord.setTotalTime(ltotalTime);
-                cyclingRecord.setRestTime(lrestTime);
-                cyclingRecord.setTotalTimeStr(sDateTimeTotal);
-                cyclingRecord.setRestTimeStr(sDateTimeRest);
-                cyclingRecord.setAverageSpeed(Double.parseDouble(getAvSpeed(ltotalTime - lrestTime, cyclingRecord.getDistance())));
-                cyclingRecord.save();
-                Intent intent11 = new Intent(this, TestService.class);
-                stopService(intent11);
+                try {
+                    myLocationManager.locationClientStop();// 关闭定位
+                    myLocationManager.changeIsRiding(false);
+                    long ltotalTime = SystemClock.elapsedRealtime() - chronometer.getBase();// 获取到总的时间
+                    if (!statusRun){
+                        recordingTime = SystemClock.elapsedRealtime()- chronometerRest.getBase();
+                    }
+                    long lrestTime = recordingTime;// 获取到休息的时间
+                    mBaseTime = SystemClock.elapsedRealtime();
+                    chronometer.setBase(mBaseTime);
+                    chronometer.stop();
+                    chronometerRest.setBase(mBaseTime);
+                    chronometerRest.stop();
+                    recordingTime = 0;
+                    statusRun = false;
+                    ib_timing_continue.setVisibility(View.INVISIBLE);
+                    ib_timing_pause.setVisibility(View.INVISIBLE);// 暂停按钮显示出来
+                    ib_timing_start.setVisibility(View.VISIBLE);// 开始按钮消失
+                    ib_timing_finish.setVisibility(View.INVISIBLE);// 开始按钮消失
+                    isRiding = false;
+                    myLocationManager.overlayOptions(getResources().getColor(R.color.ColorPrimary));// 绘制折线,数据太短时无法绘制，会报错
+                    //*********************************************************应该放在一个线程里面执行
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                    String sDateTimeTotal = sdf.format(ltotalTime - TimeZone.getDefault().getRawOffset());// 减去时间差
+                    String sDateTimeRest = sdf.format(lrestTime - TimeZone.getDefault().getRawOffset());
+                    CyclingRecord cyclingRecord = myLocationManager.getCyclingRecord();
+                    cyclingRecord.setTotalTime(ltotalTime);
+                    cyclingRecord.setRestTime(lrestTime);
+                    cyclingRecord.setTotalTimeStr(sDateTimeTotal);
+                    cyclingRecord.setRestTimeStr(sDateTimeRest);
+                    cyclingRecord.setAverageSpeed(Double.parseDouble(getAvSpeed(ltotalTime - lrestTime, cyclingRecord.getDistance())));
+                    cyclingRecord.save();
+                    Intent intent11 = new Intent(this, TestService.class);
+                    stopService(intent11);
+                }catch (Exception e){
+                    Log.e("Exceptiiong",e.toString());
+                }
                 break;
             case R.id.ib_timing_color : // 切换面板背景颜色
                 switch (changecolor){
@@ -288,7 +294,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
 
     // 得到保留两位数的平均速度KM/H（毫秒，公里）
     public String getAvSpeed(double t, double s){
-        String v = ddf1.format(s / (t/3600000));
+        String v = ddf1.format(s / (t / 3600000));
         return v;
     }
     // 切换百度地图 显示或隐藏
@@ -296,7 +302,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         //final View infoContainer = findViewById(R.id.fl_timing_baidumap);
         float radius = Math.max(infoContainer.getWidth(), infoContainer.getHeight()) * 2.0f;
 
-        if (infoContainer.getVisibility() == View.INVISIBLE) {
+/*        if (infoContainer.getVisibility() == View.INVISIBLE) {
             myLocationManager.locationClientStart();// 开启定位
             myLocationManager.orientationListenerStart();// 开启方向传感器
             Animator reveal = ViewAnimationUtils.createCircularReveal(infoContainer, p.x, p.y, 0, radius);
@@ -322,7 +328,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
             });
             reveal.setDuration(500);
             reveal.start();
-        }
+        }*/
     }
 
     /**
@@ -380,5 +386,19 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         // 在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
         myLocationManager.onPause();
         mMapView.onPause();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        Log.e("Tag", "onBackPressed");
+        if (isRiding){
+            Log.e("Tag", "骑行");
+            Intent intent = new Intent(MyApplication.getContext(), HomeActivity.class);
+            startActivity(intent);
+        }else{
+            Log.e("Tag", "未骑行");
+            super.onBackPressed();
+        }
     }
 }
