@@ -5,6 +5,7 @@
         <!-- Customize your theme here. -->
 <!--        <item name="android:textColorPrimary">@android:color/white</item>-->
         <item name="colorPrimary">@color/ColorPrimary</item>
+        <item name="colorPrimaryDark">@color/ColorPrimary2</item>
         <!--状态栏透明 api 19-->
         <item name="android:windowTranslucentStatus">true</item>
         <!-- Toolbar Theme / Apply white arrow -->
@@ -12,8 +13,10 @@
         <item name="actionBarTheme">@style/AppTheme.ActionBarTheme</item>-->
     </style>
     <style name="AppTheme.ActionBarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-        <!-- White arrow -->
         <item name="colorControlNormal">@android:color/white</item>
     </style>
-
+    <style name="ShareTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/ColorPrimary</item>
+        <item name="colorPrimaryDark">@color/ColorPrimary2</item>
+    </style>
 </resources>

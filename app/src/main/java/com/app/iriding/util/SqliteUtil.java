@@ -29,8 +29,8 @@ public class SqliteUtil {
         return cyclingRecords;
     }
 
-    //得到某一次的骑行记录
-    public CyclingRecord selectSingleCyclingRecord(int id){
+    // 得到某一次的骑行记录
+    public CyclingRecord selectSingleCyclingRecord(long id){
         CyclingRecord cyclingRecord = new Select().from(CyclingRecord.class)
                 .where("Id = ?", id)
                 .executeSingle();

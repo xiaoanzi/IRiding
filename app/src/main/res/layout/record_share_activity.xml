@@ -9,39 +9,49 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <ImageView
+            <com.baidu.mapapi.map.MapView
+                android:id="@+id/mv_share_bmapView"
                 android:layout_width="match_parent"
                 android:layout_height="320dp"
-                android:src="@drawable/user_wallpapers_630"
-                android:scaleType="centerCrop"
-                android:layout_weight="2"
-                android:id="@+id/sdfsdfsd"/>
+                android:clickable="true" />
             <com.melnykov.fab.FloatingActionButton
-                android:id="@+id/add_fasssssb"
+                android:id="@+id/fb_share_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginTop="292dp"
                 android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
                 android:src="@drawable/ic_share_white_24dp"
                 fab:fab_colorNormal="@color/accent"
                 fab:fab_colorPressed="@color/accent_pressed"
                 fab:fab_colorRipple="@color/ripple"/>
         </RelativeLayout>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <TableRow>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="本次骑行记录："
+                android:layout_marginLeft="16dp" />
+        </TableRow>
         <TableRow
             android:gravity="center">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="156"
+                android:textStyle="bold"
                 android:textSize="34sp"
                 android:layout_weight="1"
-                android:gravity="center"/>
-
+                android:gravity="center"
+                android:id="@+id/tv_share_distance"/>
         </TableRow>
         <TableRow>
             <TextView
@@ -58,14 +68,16 @@
                 android:text="23"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="24sp"/>
+                android:textSize="24sp"
+                android:id="@+id/tv_share_averageSpeed"/>
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="68"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="24sp"/>
+                android:textSize="24sp"
+                android:id="@+id/tv_share_maxSpeed"/>
         </TableRow>
         <TableRow>
             <TextView
@@ -90,14 +102,16 @@
                 android:text="00:34:45"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="24sp"/>
+                android:textSize="24sp"
+                android:id="@+id/tv_share_totalTime"/>
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="00:34:45"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="24sp"/>
+                android:textSize="24sp"
+                android:id="@+id/tv_share_restTime"/>
         </TableRow>
         <TableRow>
             <TextView
@@ -116,5 +130,5 @@
                 android:textSize="12sp"/>
         </TableRow>
     </TableLayout>
-
+    </ScrollView>
 </LinearLayout>

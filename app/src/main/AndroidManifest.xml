@@ -16,8 +16,10 @@
             </intent-filter>
         </activity>
 
+        <!--activity-->
         <activity android:name=".ui.activity.TimingActivity"/>
-
+        <activity android:name=".ui.activity.RecordShareActivity" android:theme="@style/ShareTheme"/><!--设置单独的主题-->
+        <!--service-->
         <service android:name=".service.TestService"/>
         <!-- 百度地图API KEY-->
         <meta-data android:name="com.baidu.lbsapi.API_KEY" android:value="k6tgxL55qqrelW8E48i2Pl77" />

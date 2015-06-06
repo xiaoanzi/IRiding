@@ -8,7 +8,10 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.FrameLayout;
@@ -84,7 +87,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     private LocalReceiver localReceiver;
     private LocalBroadcastManager localBroadcastManager;
     private NumberFormat ddf1;
-
+    private Toolbar toolbar;
     @Override
     public void setContentView() {
         setContentView(R.layout.timing_activity);
@@ -93,6 +96,15 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void findViews() {
         Log.e("Tag", "onCreat");
+        toolbar = (Toolbar) findViewById(R.id.timing_toolbar);
+        toolbar.setTitleTextColor(Color.parseColor("#ffffff")); //设置标题颜色
+        toolbar.setTitle("仪表盘");//设置Toolbar标题
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);// 设置toolbar图标可见
+        actionBar.setDisplayHomeAsUpEnabled(true);// 设置home按钮可以点击
+        actionBar.setHomeButtonEnabled(true);// 设置返回键可用
+
         chronometer = (Chronometer) findViewById(R.id.ch_timing_time);
         chronometerRest = (Chronometer) findViewById(R.id.ch_timing_rest);
         tv_timing_distance = (TextView) findViewById(R.id.tv_timing_distance);
@@ -400,5 +412,16 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
             Log.e("Tag", "未骑行");
             super.onBackPressed();
         }
+    }
+    // 设置toolbar返回按钮的监听听
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
