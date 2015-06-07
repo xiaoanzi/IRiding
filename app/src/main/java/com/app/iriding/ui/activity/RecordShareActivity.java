@@ -83,9 +83,6 @@ public class RecordShareActivity extends BaseActivity{
         tv_share_restTime.setText(cyclingRecord.getRestTimeStr());
         Log.e("RecordShareActivity", "啦啦啦啦啦");
 
-
-
-
         OverlayOptions ooCircle = new PolylineOptions()
                 .color(getResources().getColor(R.color.ColorPrimary))//折线的颜色
                 .dottedLine(false)//折线是否为虚线

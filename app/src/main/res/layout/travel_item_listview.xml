@@ -30,8 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_timer_grey600_18dp"
-                android:layout_marginRight="8dp"
-                android:tint="@color/ColorPrimary"/>
+                android:layout_marginRight="8dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -49,8 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_event_grey600_18dp"
-                android:layout_marginRight="8dp"
-                android:tint="@color/ColorPrimary"/>
+                android:layout_marginRight="8dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

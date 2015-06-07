@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,6 +57,7 @@ public class TravelScrollFragment extends Fragment {
 
     @Override
     public void onStart() {
+        Log.e("TEST","START123");
         super.onStart();
         fb_travel_scadd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,10 +87,13 @@ public class TravelScrollFragment extends Fragment {
         lv_travel_fiverecord.setLayoutParams(params);
 
         lv_travel_fiverecord.setAdapter(traveListViewAdapter);
+
+
         lv_travel_fiverecord.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MyApplication.getContext(), RecordShareActivity.class);
+                Intent intent = new Intent(MyApplication.getContext(), TravelInfoListActivity.class);
+//                Intent intent = new Intent(MyApplication.getContext(), RecordShareActivity.class);
                 intent.putExtra("CyclingRecordId", cyclingRecords.get(i).getId());
                 startActivity(intent);
             }
