@@ -92,8 +92,7 @@ public class TravelScrollFragment extends Fragment {
         lv_travel_fiverecord.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(MyApplication.getContext(), TravelInfoListActivity.class);
-//                Intent intent = new Intent(MyApplication.getContext(), RecordShareActivity.class);
+                Intent intent = new Intent(MyApplication.getContext(), RecordShareActivity.class);
                 intent.putExtra("CyclingRecordId", cyclingRecords.get(i).getId());
                 startActivity(intent);
             }

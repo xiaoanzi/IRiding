@@ -17,6 +17,7 @@ import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.app.iriding.R;
 import com.app.iriding.model.CyclingRecord;
@@ -181,18 +182,23 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         final Point pi = getLocationInView(revealColorView, view);
         switch (view.getId()){
             case R.id.ib_timing_start : // 开始骑行
-                myLocationManager.changeIsRiding(true);
-                myLocationManager.locationClientStart();// 开启定位
-                myLocationManager.locationClientStart();// 打开传感器
-                chronometer.setBase(SystemClock.elapsedRealtime());
-                chronometer.start();
-                statusRun = true; // 骑行状态
-                ib_timing_start.setVisibility(View.GONE);// 开始按钮消失
-                ib_timing_pause.setVisibility(View.VISIBLE);// 暂停按钮显示出来
-                ib_timing_finish.setVisibility(View.VISIBLE);// 完成按钮显示出来
-                isRiding = true;
-                Intent intent1 = new Intent(this, TestService.class);
-                startService(intent1);
+                try {
+                    myLocationManager.changeIsRiding(true);
+                    myLocationManager.locationClientStart();// 开启定位
+                    myLocationManager.locationClientStart();// 打开传感器
+                    chronometer.setBase(SystemClock.elapsedRealtime());
+                    chronometer.start();
+                    statusRun = true; // 骑行状态
+                    ib_timing_start.setVisibility(View.GONE);// 开始按钮消失
+                    ib_timing_pause.setVisibility(View.VISIBLE);// 暂停按钮显示出来
+                    ib_timing_finish.setVisibility(View.VISIBLE);// 完成按钮显示出来
+                    isRiding = true;
+                    Intent intent1 = new Intent(this, TestService.class);
+                    startService(intent1);
+                }catch (Exception e){
+                    Toast.makeText(MyApplication.getContext(),e.toString(),Toast.LENGTH_LONG).show();
+                    Log.e("ERRORRRR",e.toString());
+                }
                 break;
             case R.id.ib_timing_pause : // 暂停骑行
                 if (statusRun){
@@ -252,7 +258,8 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                     Intent intent11 = new Intent(this, TestService.class);
                     stopService(intent11);
                 }catch (Exception e){
-                    Log.e("Exceptiiong",e.toString());
+                    Toast.makeText(MyApplication.getContext(),e.toString(),Toast.LENGTH_LONG).show();
+                    Log.e("Exceptiiong", e.toString());
                 }
                 break;
             case R.id.ib_timing_color : // 切换面板背景颜色

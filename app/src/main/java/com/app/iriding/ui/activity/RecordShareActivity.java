@@ -24,6 +24,7 @@ import com.baidu.mapapi.overlayutil.OverlayManager;
 import com.melnykov.fab.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -64,7 +65,9 @@ public class RecordShareActivity extends BaseActivity{
     public void getData() {
         sqliteUtil = new SqliteUtil();
         Intent intent = getIntent();
+        Log.e("TIMEEEE00", new Date().toString());
         cyclingRecord = sqliteUtil.selectSingleCyclingRecord(intent.getLongExtra("CyclingRecordId",-1));
+        Log.e("TIMEEEE00", new Date().toString());
         toolbar.setTitleTextColor(Color.parseColor("#ffffff")); //设置标题颜色
         toolbar.setTitle(cyclingRecord.getMdateTimeStr());//设置Toolbar标题
         setSupportActionBar(toolbar);
@@ -82,13 +85,13 @@ public class RecordShareActivity extends BaseActivity{
         tv_share_totalTime.setText(cyclingRecord.getTotalTimeStr());
         tv_share_restTime.setText(cyclingRecord.getRestTimeStr());
         Log.e("RecordShareActivity", "啦啦啦啦啦");
-
+        Log.e("TIMEEEE11",new Date().toString());
         OverlayOptions ooCircle = new PolylineOptions()
                 .color(getResources().getColor(R.color.ColorPrimary))//折线的颜色
                 .dottedLine(false)//折线是否为虚线
                 .points(cyclingRecord.getLatLngs());//折线的点坐标
                 mBaiduMap.addOverlay(ooCircle);
-
+        Log.e("TIMEEEE11", new Date().toString());
         try {
             mBaiduMap.setOnMapLoadedCallback(new BaiduMap.OnMapLoadedCallback() {
                 @Override
@@ -100,24 +103,35 @@ public class RecordShareActivity extends BaseActivity{
                     int lSize = latLngs.size();
                     BitmapDescriptor bitmap = BitmapDescriptorFactory
                             .fromResource(R.drawable.ic_my_location_grey600_24dp);
+                    Log.e("TIMEEEE22", new Date().toString());
                     for (int i=0;i< lSize;i++) {
                         OverlayOptions optionsStart = new MarkerOptions().position(latLngs.get(i)).icon(bitmap);
                         overlayOptions.add(optionsStart);
                     }
-                    OverlayManager overlayManager = new OverlayManager(mBaiduMap) {
+                    Log.e("TIMEEEE22", new Date().toString());
+                    new Thread(new Runnable() {
                         @Override
-                        public boolean onMarkerClick(Marker marker) {
-                            return false;
-                        }
+                        public void run() {
+                            OverlayManager overlayManager = new OverlayManager(mBaiduMap) {
+                                @Override
+                                public boolean onMarkerClick(Marker marker) {
+                                    return false;
+                                }
 
-                        @Override
-                        public List<OverlayOptions> getOverlayOptions() {
-                            return overlayOptions;
+                                @Override
+                                public List<OverlayOptions> getOverlayOptions() {
+                                    return overlayOptions;
+                                }
+                            };
+                            Log.e("TIMEEEE33", new Date().toString());
+                            overlayManager.addToMap();
+                            Log.e("TIMEEEE33", new Date().toString());
+                            overlayManager.zoomToSpan();
+                            Log.e("TIMEEEE33", new Date().toString());
+                            overlayManager.removeFromMap();
+                            Log.e("TIMEEEE33", new Date().toString());
                         }
-                    };
-                    overlayManager.addToMap();
-                    overlayManager.zoomToSpan();
-                    overlayManager.removeFromMap();
+                    }).start();
 
 /*                    LatLngBounds bounds = new LatLngBounds.Builder().include(latLngs.get(0))
                             .include(latLngs.get(lSize - 2)).build();
