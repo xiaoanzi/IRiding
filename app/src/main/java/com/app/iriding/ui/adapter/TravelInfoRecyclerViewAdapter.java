@@ -16,9 +16,6 @@ import java.util.List;
  */
 public class TravelInfoRecyclerViewAdapter extends RecyclerView.Adapter<TravelInfoRecyclerViewAdapter.ViewHolder>{
     private List<CyclingRecord> mList;
-    private View mView;
-    private final int TYPE_HEADER = 0;
-    private final int TYPE_CHILD = 1;
     /**
      * Item的回调接口
      *
@@ -43,25 +40,17 @@ public class TravelInfoRecyclerViewAdapter extends RecyclerView.Adapter<TravelIn
 
     @Override
     public TravelInfoRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (mView != null && viewType == TYPE_HEADER) {
-            return new ViewHolder(mView);
-        } else {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.travelinfo_item_listview, parent, false);
-            ViewHolder holder = new ViewHolder(v);
-            holder.tv_travelinfo_day = (TextView) v.findViewById(R.id.tv_travelinfo_day);
-            holder.tv_travelinfo_distance = (TextView) v.findViewById(R.id.tv_travelinfo_distance);
-            holder.tv_travelinfo_totalTime = (TextView) v.findViewById(R.id.tv_travelinfo_totalTime);
-            holder.tv_travelinfo_date = (TextView) v.findViewById(R.id.tv_travelinfo_date);
-            return holder;
-        }
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.travelinfo_item_listview, parent, false);
+        ViewHolder holder = new ViewHolder(v);
+        holder.tv_travelinfo_day = (TextView) v.findViewById(R.id.tv_travelinfo_day);
+        holder.tv_travelinfo_distance = (TextView) v.findViewById(R.id.tv_travelinfo_distance);
+        holder.tv_travelinfo_totalTime = (TextView) v.findViewById(R.id.tv_travelinfo_totalTime);
+        holder.tv_travelinfo_date = (TextView) v.findViewById(R.id.tv_travelinfo_date);
+        return holder;
     }
 
     @Override
     public void onBindViewHolder(final TravelInfoRecyclerViewAdapter.ViewHolder holder, int position) {
-        if (holder.getItemViewType() == TYPE_HEADER) return;
-        if (mView != null) {
-            position = position - 1;
-        }
         final int i = position;
         CyclingRecord cyclingRecord = mList.get(position);
         holder.tv_travelinfo_day.setText(position+"");
@@ -84,13 +73,8 @@ public class TravelInfoRecyclerViewAdapter extends RecyclerView.Adapter<TravelIn
     }
 
     @Override
-    public int getItemViewType(int position) {
-        return position == 0 ? TYPE_HEADER : TYPE_CHILD;
-    }
-
-    @Override
     public int getItemCount() {
-        return mView != null ? mList.size() + 1 : mList.size();
+        return mList.size() ;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -103,9 +87,5 @@ public class TravelInfoRecyclerViewAdapter extends RecyclerView.Adapter<TravelIn
         TextView tv_travelinfo_distance;
         TextView tv_travelinfo_totalTime;
         TextView tv_travelinfo_date;
-    }
-
-    public void addHeaderView(View view) {
-        this.mView = view;
     }
 }

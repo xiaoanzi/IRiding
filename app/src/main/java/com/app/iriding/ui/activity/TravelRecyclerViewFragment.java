@@ -1,5 +1,6 @@
 package com.app.iriding.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,8 +13,8 @@ import android.view.ViewGroup;
 import com.app.iriding.R;
 import com.app.iriding.model.TravelPackage;
 import com.app.iriding.ui.adapter.TravelRecyclerViewAdapter;
+import com.app.iriding.util.MyApplication;
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
-import com.github.florent37.materialviewpager.adapter.RecyclerViewMaterialAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +44,10 @@ public class TravelRecyclerViewFragment extends Fragment {
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-        for (int i = 0; i < 10; ++i){
+        for (int i = 0; i < 10; i++){
             TravelPackage travelPackage = new TravelPackage();
             travelPackage.setCover(i + "");
-            travelPackage.setTitle("小逗比之旅" + 1);
+            travelPackage.setTitle("小逗比之旅" + i);
             travelPackage.setDeparture("成都");
             travelPackage.setDestination("拉萨");
             travelPackage.setAlreadyDay(5 + i);
@@ -58,8 +59,16 @@ public class TravelRecyclerViewFragment extends Fragment {
             }
             travelPackages.add(travelPackage);
         }
-        mAdapter = new RecyclerViewMaterialAdapter(new TravelRecyclerViewAdapter(travelPackages));
-        mRecyclerView.setAdapter(mAdapter);
+//        mAdapter = new RecyclerViewMaterialAdapter(new TravelRecyclerViewAdapter(travelPackages));
+        TravelRecyclerViewAdapter travelRecyclerViewAdapter = new TravelRecyclerViewAdapter(travelPackages);
+        travelRecyclerViewAdapter.setOnItemClickListener(new TravelRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClickListener(TravelPackage parent, View view, int position) {
+                Intent intent = new Intent(MyApplication.getContext(), TravelInfoListActivity.class);
+                startActivity(intent);
+            }
+        });
+        mRecyclerView.setAdapter(travelRecyclerViewAdapter);
         MaterialViewPagerHelper.registerRecyclerView(getActivity(), mRecyclerView, null);
     }
 }

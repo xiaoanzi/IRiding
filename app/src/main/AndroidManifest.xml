@@ -38,10 +38,10 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".ui.activity.TestActivity"
+            android:name=".ui.activity.HomeActivity"
             android:launchMode="singleInstance"
             android:label="@string/app_name"
-            android:theme="@style/ShareTheme">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,6 +52,7 @@
         <!--activity-->
         <activity android:name=".ui.activity.TimingActivity"/>
         <activity android:name=".ui.activity.RecordShareActivity" android:theme="@style/ShareTheme"/><!--设置单独的主题-->
+        <activity android:name=".ui.activity.RecordMoreActivity" android:theme="@style/ShareTheme"/><!--设置单独的主题-->
 
 
 
