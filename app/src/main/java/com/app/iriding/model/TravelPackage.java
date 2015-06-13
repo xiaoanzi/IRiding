@@ -10,7 +10,7 @@ public class TravelPackage {
     private int alreadyDay;// 已经进行多少天
     private int forecastDay;// 预计多少天
     private String cover;// 封面
-    private int isDone;// 0表示进行中 1表示已完成
+    private int isDone;// 0表示进行中 1表示已完成 2表示未开始
 
     public String getTitle() {
         return title;
