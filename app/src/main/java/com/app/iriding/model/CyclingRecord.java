@@ -32,7 +32,14 @@ public class CyclingRecord extends Model{
     private String mdateTimeStr;// 日期的string类型
     @Column(name = "totalPoint")
     private String totalPoint;// 绘图的点
-
+    @Column(name = "maxLantitude")
+    private double maxLantitude;// 最大纬度
+    @Column(name = "maxtLongitude")
+    private double maxtLongitude;// 最大经度
+    @Column(name = "minLantitude")
+    private double minLantitude;// 最小纬度
+    @Column(name = "mintLongitude")
+    private double mintLongitude;// 最小经度
     private List<LatLng> latLngs;
 
     public long getTotalTime() {
@@ -113,6 +120,38 @@ public class CyclingRecord extends Model{
 
     public void setTotalPoint(String totalPoint) {
         this.totalPoint = totalPoint;
+    }
+
+    public double getMaxLantitude() {
+        return maxLantitude;
+    }
+
+    public void setMaxLantitude(double maxLantitude) {
+        this.maxLantitude = maxLantitude;
+    }
+
+    public double getMaxtLongitude() {
+        return maxtLongitude;
+    }
+
+    public void setMaxtLongitude(double maxtLongitude) {
+        this.maxtLongitude = maxtLongitude;
+    }
+
+    public double getMinLantitude() {
+        return minLantitude;
+    }
+
+    public void setMinLantitude(double minLantitude) {
+        this.minLantitude = minLantitude;
+    }
+
+    public double getMintLongitude() {
+        return mintLongitude;
+    }
+
+    public void setMintLongitude(double mintLongitude) {
+        this.mintLongitude = mintLongitude;
     }
 
     public List<LatLng> getLatLngs() {

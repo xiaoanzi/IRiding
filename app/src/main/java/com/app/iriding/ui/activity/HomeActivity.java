@@ -1,7 +1,9 @@
 package com.app.iriding.ui.activity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
@@ -11,11 +13,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.app.iriding.R;
 import com.github.florent37.materialviewpager.MaterialViewPager;
+
 
 /**
  * Created by 王海 on 2015/6/1.
@@ -27,6 +31,7 @@ public class HomeActivity extends BaseActivity{
     private ImageView navImage;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
+    private NavigationView navigationView;
     @Override
     public void setContentView() {
         setContentView(R.layout.home_activity);
@@ -35,6 +40,7 @@ public class HomeActivity extends BaseActivity{
     @Override
     public void findViews() {
         mViewPager = (MaterialViewPager) findViewById(R.id.materialViewPager);
+        navigationView = (NavigationView) findViewById(R.id.draw_item);
         imageView = (ImageView) findViewById(R.id.logo_white);
         navImage = (ImageView) findViewById(R.id.nav_icon);
         Bitmap src = BitmapFactory.decodeResource(getResources(), R.drawable.myuser);
@@ -152,7 +158,19 @@ public class HomeActivity extends BaseActivity{
 
     @Override
     public void showContent() {
-
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.navigation_sub_item_2:
+                        mDrawerLayout.closeDrawers();
+                        Intent intent = new Intent(HomeActivity.this, RecordMoreActivity.class);
+                        startActivity(intent);
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     @Override

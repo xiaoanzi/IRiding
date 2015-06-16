@@ -6,25 +6,30 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
+import android.widget.Chronometer;
 
 import com.app.iriding.R;
 import com.app.iriding.ui.activity.TimingActivity;
+import com.app.iriding.util.MyApplication;
 
 /**
  * Created by 王海 on 2015/5/29.
  */
 public class TestService extends Service {
-
+    private final String TAG = "TestService";
     private TestBind mTestBind = new TestBind();
+    public TestService() {
+    }
 
-    class TestBind extends Binder{
+    public class TestBind extends Binder{
         public void startBind(){
-            Log.d("MyService", "startDownload executed");
-
+            Log.e(TAG, "startDownload executed");
         }
         public void endBind(){
-            Log.d("MyService", "endDownload executed");
+            Log.e(TAG, "endDownload executed");
         }
     }
 
@@ -34,17 +39,25 @@ public class TestService extends Service {
     }
 
     @Override public void onCreate() {
-        super.onCreate();
+        Log.e(TAG, "onCreate");
         Notification notification = new Notification(R.drawable.ic_my_location_grey600_24dp, "骑行开始", System. currentTimeMillis());
         Intent notificationIntent = new Intent(this, TimingActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         notification.setLatestEventInfo(this, "IRing", "骑行进行中", pendingIntent);
         startForeground(1, notification);
-        Log.d("MyService", "onCreate executed");
+        Log.e("MyService", "onCreate executed");
+        super.onCreate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e(TAG, "onStartCommand");
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.e(TAG, "onDestroy");
+        super.onDestroy();
     }
 }

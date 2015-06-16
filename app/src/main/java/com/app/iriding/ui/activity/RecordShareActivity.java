@@ -40,8 +40,8 @@ public class RecordShareActivity extends BaseActivity{
     private TextView tv_share_totalTime;
     private TextView tv_share_restTime;
     private Toolbar toolbar;
-    SqliteUtil sqliteUtil;
-    CyclingRecord cyclingRecord = new CyclingRecord();
+    private SqliteUtil sqliteUtil;
+    private CyclingRecord cyclingRecord = new CyclingRecord();
     @Override
     public void setContentView() {
         setContentView(R.layout.record_share_activity);
@@ -84,34 +84,35 @@ public class RecordShareActivity extends BaseActivity{
         tv_share_maxSpeed.setText(cyclingRecord.getMaxSpeed() + "");
         tv_share_totalTime.setText(cyclingRecord.getTotalTimeStr());
         tv_share_restTime.setText(cyclingRecord.getRestTimeStr());
-        Log.e("RecordShareActivity", "啦啦啦啦啦");
-        Log.e("TIMEEEE11",new Date().toString());
         OverlayOptions ooCircle = new PolylineOptions()
                 .color(getResources().getColor(R.color.ColorPrimary))//折线的颜色
                 .dottedLine(false)//折线是否为虚线
                 .points(cyclingRecord.getLatLngs());//折线的点坐标
                 mBaiduMap.addOverlay(ooCircle);
-        Log.e("TIMEEEE11", new Date().toString());
         try {
             mBaiduMap.setOnMapLoadedCallback(new BaiduMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
                     Log.e("RecordShareActivity", "重听啦12345");
-                    final List<OverlayOptions> overlayOptions = new ArrayList<OverlayOptions>();
-                    List<LatLng> latLngs = new ArrayList<LatLng>();
-                    latLngs = cyclingRecord.getLatLngs();
-                    int lSize = latLngs.size();
-                    BitmapDescriptor bitmap = BitmapDescriptorFactory
-                            .fromResource(R.drawable.ic_my_location_grey600_24dp);
-                    Log.e("TIMEEEE22", new Date().toString());
-                    for (int i=0;i< lSize;i++) {
-                        OverlayOptions optionsStart = new MarkerOptions().position(latLngs.get(i)).icon(bitmap);
-                        overlayOptions.add(optionsStart);
-                    }
-                    Log.e("TIMEEEE22", new Date().toString());
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
+                            final List<OverlayOptions> overlayOptions = new ArrayList<OverlayOptions>();
+                            BitmapDescriptor bitmap = BitmapDescriptorFactory
+                                    .fromResource(R.drawable.ic_my_location_grey600_24dp);
+                            LatLng latLng1 = new LatLng(cyclingRecord.getMaxLantitude(), cyclingRecord.getMaxtLongitude());
+                            LatLng latLng2 = new LatLng(cyclingRecord.getMinLantitude(), cyclingRecord.getMintLongitude());
+                            LatLng latLng3 = new LatLng(cyclingRecord.getMaxLantitude(), cyclingRecord.getMintLongitude());
+                            LatLng latLng4 = new LatLng(cyclingRecord.getMinLantitude(), cyclingRecord.getMaxtLongitude());
+                            OverlayOptions options1= new MarkerOptions().position(latLng1).icon(bitmap);
+                            OverlayOptions options2 = new MarkerOptions().position(latLng2).icon(bitmap);
+                            OverlayOptions options3 = new MarkerOptions().position(latLng3).icon(bitmap);
+                            OverlayOptions options4 = new MarkerOptions().position(latLng4).icon(bitmap);
+                            overlayOptions.add(options1);
+                            overlayOptions.add(options2);
+                            overlayOptions.add(options3);
+                            overlayOptions.add(options4);
+
                             OverlayManager overlayManager = new OverlayManager(mBaiduMap) {
                                 @Override
                                 public boolean onMarkerClick(Marker marker) {
@@ -123,13 +124,9 @@ public class RecordShareActivity extends BaseActivity{
                                     return overlayOptions;
                                 }
                             };
-                            Log.e("TIMEEEE33", new Date().toString());
                             overlayManager.addToMap();
-                            Log.e("TIMEEEE33", new Date().toString());
                             overlayManager.zoomToSpan();
-                            Log.e("TIMEEEE33", new Date().toString());
                             overlayManager.removeFromMap();
-                            Log.e("TIMEEEE33", new Date().toString());
                         }
                     }).start();
 

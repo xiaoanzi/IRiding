@@ -34,15 +34,30 @@ import java.util.List;
  * Created by 王海 on 2015/5/29.
  */
 public class MyLocationManager {
+    private final String TAG = "MyLocationManager";
     private MapView mMapView = null; // 地图控件
     private BaiduMap mBaiduMap;// 地图实例
     private LocationClient mLocationClient;// 定位的客户端
     public MyLocationListener mMyLocationListener;// 定位的监听器
     private MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;// 当前定位的模式
     private volatile boolean isFristLocation = true;// 是否是第一次定位
-    //最新一次的经纬度
-    private double mCurrentLantitude;
-    private double mCurrentLongitude;
+    private volatile boolean isFristLocationAdd = true;// 是否是开始骑行第一次加入坐标
+
+    // 最新一次的经纬度
+    private double mCurrentLantitude = 0;
+    private double mCurrentLongitude = 0;
+
+    // 上一次的经纬度
+    private double lastLantitude = 0;
+    private double lastLongitude = 0;
+
+    // 最大最小纬度经度
+    private double maxLantitude = 0;
+    private double maxtLongitude = 0;
+    private double minLantitude = 0;
+    private double mintLongitude = 0;
+
+    private int mLocType = 0;
 
     private float mCurrentAccracy;// 当前的精度
     private MyOrientationListener myOrientationListener;// 方向传感器的监听器
@@ -115,8 +130,7 @@ public class MyLocationManager {
      */
     public class MyLocationListener implements BDLocationListener {
         @Override
-        public void onReceiveLocation(BDLocation location)
-        {
+        public void onReceiveLocation(BDLocation location) {
             // map view 销毁后不在处理新接收的位置
             if (location == null || mMapView == null)
                 return;
@@ -128,28 +142,55 @@ public class MyLocationManager {
             mCurrentAccracy = location.getRadius();
             mBaiduMap.setMyLocationData(locData);// 设置定位数据
             LatLng pt1 = new LatLng(mCurrentLantitude, mCurrentLongitude);
+/*            Log.e(TAG,mCurrentLantitude+"");
+            Log.e(TAG,mCurrentLongitude+"");*/
+
+            mLocType = location.getLocType();
+/*            Log.e(TAG,mLocType+"code");*/
+
             mCurrentLantitude = location.getLatitude();// 绘制线路需要的数据
             mCurrentLongitude = location.getLongitude();// 绘制线路需要的数据
             if (isRiding){
-                LatLng pt2 = new LatLng(mCurrentLantitude, mCurrentLongitude);
-                pts.add(pt2);
-                CyclingPoint cyclingPoint = new CyclingPoint(mCurrentLantitude, mCurrentLongitude);
-                mCyclingPoints.add(cyclingPoint);
-                distance += DistanceUtil. getDistance(pt1, pt2);// 单位米
-                currentSpeed = location.getSpeed();
-                if (maxSpeed < currentSpeed){
-                    maxSpeed = currentSpeed;
-                }
-                // 不可见状态就不发送广播通知更新页面
-                if (isView){
-                    try{
-                        Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCAST");
-                        intent.putExtra("Speed",ddf1.format(currentSpeed));
-                        intent.putExtra("Distance",ddf1.format(distance/1000));
-                        intent.putExtra("MaxSpeed",ddf1.format(maxSpeed));
-                        localBroadcastManager.sendBroadcast(intent); // 发送本地广播
-                    }catch (Exception e){
-                        Log.e("broadcasttestError", e.toString());
+                if (lastLantitude != mCurrentLantitude || lastLongitude != mCurrentLongitude){
+                    lastLantitude = mCurrentLantitude;
+                    lastLongitude = mCurrentLongitude;
+                    if (isFristLocationAdd){
+                        isFristLocationAdd = false;
+                        minLantitude = mCurrentLantitude;
+                        mintLongitude = mCurrentLongitude;
+                    }
+                    if (minLantitude > mCurrentLantitude){
+                        minLantitude = mCurrentLantitude;
+                    }
+                    if (mintLongitude > mCurrentLongitude){
+                        mintLongitude = mCurrentLongitude;
+                    }
+                    if (maxLantitude < mCurrentLantitude){
+                        maxLantitude = mCurrentLantitude;
+                    }
+                    if (maxtLongitude < mCurrentLongitude){
+                        maxtLongitude = mCurrentLongitude;
+                    }
+                    LatLng pt2 = new LatLng(mCurrentLantitude, mCurrentLongitude);
+                    pts.add(pt2);
+                    CyclingPoint cyclingPoint = new CyclingPoint(mCurrentLantitude, mCurrentLongitude);
+                    mCyclingPoints.add(cyclingPoint);
+                    distance += DistanceUtil. getDistance(pt1, pt2);// 单位米
+                    currentSpeed = location.getSpeed();
+                    if (maxSpeed < currentSpeed){
+                        maxSpeed = currentSpeed;
+                    }
+                    // 不可见状态就不发送广播通知更新页面
+                    if (isView){
+                        try{
+                            Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCAST");
+                            intent.putExtra("Speed",ddf1.format(currentSpeed));
+                            intent.putExtra("Distance",ddf1.format(distance/1000));
+                            intent.putExtra("MaxSpeed",ddf1.format(maxSpeed));
+                            localBroadcastManager.sendBroadcast(intent); // 发送本地广播
+                        }catch (Exception e){
+                            Log.e(TAG, e.toString());
+                        }
                     }
                 }
             }
@@ -184,16 +225,24 @@ public class MyLocationManager {
     public CyclingRecord getCyclingRecord(){
         Date date = new Date();
         long lSysTime1 = date.getTime() / 1000;   //得到秒数，Date类型的getTime()返回毫秒数
-        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm");
  //       java.util.Date dt = new Date(lSysTime1 * 1000);
         String sDateTime = sdf.format(date);
         CyclingRecord cyclingRecord = new CyclingRecord();
         cyclingRecord.setTotalPoint(SwitchJsonString.toCyclingPointString(mCyclingPoints));
+        cyclingRecord.setMaxLantitude(maxLantitude);
+        cyclingRecord.setMaxtLongitude(maxtLongitude);
+        cyclingRecord.setMinLantitude(minLantitude);
+        cyclingRecord.setMintLongitude(mintLongitude);
         cyclingRecord.setDistance(Double.parseDouble(ddf1.format(distance / 1000)));
         cyclingRecord.setMaxSpeed(Double.parseDouble(ddf1.format(maxSpeed)));
         cyclingRecord.setMdateTime(lSysTime1);
         cyclingRecord.setMdateTimeStr(sDateTime);
         return cyclingRecord;
+    }
+
+    public int getMLocType(){
+        return mLocType;
     }
 
     public void changeConfiguration(MyLocationConfiguration.LocationMode locationMode){
@@ -266,6 +315,9 @@ public class MyLocationManager {
 
     public void onPause(){
         // 在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
+        if (!isRiding){
+            locationClientStop();
+        }
         isView = false;
         mMapView.onPause();
     }

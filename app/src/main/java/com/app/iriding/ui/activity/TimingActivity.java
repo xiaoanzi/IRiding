@@ -1,11 +1,16 @@
 package com.app.iriding.ui.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
@@ -13,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -24,6 +30,7 @@ import com.app.iriding.model.CyclingRecord;
 import com.app.iriding.service.MyLocationManager;
 import com.app.iriding.service.TestService;
 import com.app.iriding.util.MyApplication;
+import com.app.iriding.util.SqliteUtil;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.model.LatLng;
@@ -35,34 +42,42 @@ import java.util.List;
 import java.util.TimeZone;
 
 import at.markushi.ui.RevealColorView;
+import me.drakeet.materialdialog.MaterialDialog;
 
 /**
  * Created by 王海 on 2015/5/27.
  */
 public class TimingActivity extends BaseActivity implements View.OnClickListener{
+    private final String TAG = "TimingActivity";
+    private final int AnimatorTime = 500;
+    private final double MIN_DISTANCE = 0.1;
+
+    List<LatLng> pts = new ArrayList<LatLng>();// 绘制折线的坐标数组
+
     private MapView mMapView = null; // 地图控件
     private MyLocationConfiguration.LocationMode mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;// 当前定位的模式
     private int mCurrentStyle = 2;// 地图定位的模式 2表示陀螺仪模式 0表示正常模式
+    private MyLocationManager myLocationManager = null;// 地图操作的相关类
 
-    private ImageButton ib_timing_switching;
-    private ImageButton ib_timing_myloc;
-    List<LatLng> pts = new ArrayList<LatLng>();// 绘制折线的坐标数组
-    private boolean isRiding = false;
-    private Chronometer chronometer;
-    private Chronometer chronometerRest;
+    private Chronometer chronometer;// 总时间计时控件
+    private Chronometer chronometerRest;// 休息时间控件
     private TextView tv_timing_distance;// 显示总里程
     private TextView tv_timing_current;// 显示当前速度
     private TextView tv_timing_average;// 显示平均速度
     private TextView tv_timing_maximum;// 显示最高速度
-    private ImageButton ib_timing_continue;
-    private ImageButton ib_timing_pause;
-    private ImageButton ib_timing_start;
-    private ImageButton ib_timing_finish;
-    private ImageButton ib_timing_color;
-    private ImageButton ib_timing_location;
-    private ImageButton ib_timing_location2;
+    private ImageButton ib_timing_continue;// 继续按钮
+    private ImageButton ib_timing_pause;// 暂停按钮
+    private ImageButton ib_timing_start;// 开始按钮
+    private ImageButton ib_timing_finish;// 完成按钮
+    private ImageButton ib_timing_color;// 更换背景颜色按钮
+    private ImageButton ib_timing_location;// 切换地图按钮
+    private ImageButton ib_timing_location2;// 切换仪表盘按钮
+    private ImageButton ib_timing_switching;// 切换地图的显示模式
+    private ImageButton ib_timing_myloc;// 在地图上回到我的位置按钮
 
     private RevealColorView revealColorView;
+    private FrameLayout fl_timing_contor;
+
     private int backgroundColor1;
     private int backgroundColor2;
     private int backgroundColor3;
@@ -70,25 +85,41 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     private int backgroundColor0;
     private int changecolor = 1;
 
-    private FrameLayout fl_timing_contor;
-
-    private long mBaseTime = SystemClock.elapsedRealtime();
+    private long mBaseTime = SystemClock.elapsedRealtime();// 基准时间
     private long recordingTime = 0;// 记录下来的总时间
     private long ridingTime = 0;// 记录下来骑行时间
-    private boolean statusRun = false;
-
-    private View infoContainer = null;
-
+    private boolean isRiding = false;// 是否开始骑行(未开始 false  已开始 true)
+    private boolean statusRun = false;// 骑行状态(骑行中 true  暂停状态 false);
     private float maxSpeed = 0;// 保存最高速度
     private float averageSpeed = 0;// 保存平均速度
     private double distance = 0.0;// 保存骑行里程总数
+    private View infoContainer = null;
 
-    private MyLocationManager myLocationManager = null;
+    // 本地广播
     private IntentFilter intentFilter;
     private LocalReceiver localReceiver;
     private LocalBroadcastManager localBroadcastManager;
-    private NumberFormat ddf1;
+    private NumberFormat ddf1;// 保存两位小数点
+
     private Toolbar toolbar;
+    private CyclingRecord cyclingRecord;
+
+    //
+    private long ltotalTime = 0;
+    private long lrestTime = 0;
+
+
+    private TestService.TestBind testBind;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override public void onServiceDisconnected(ComponentName name) {
+        }
+        @Override public void onServiceConnected(ComponentName name, IBinder service) {
+            testBind = (TestService.TestBind) service;
+            testBind.startBind();
+            testBind.endBind();
+        }
+    };
+
     @Override
     public void setContentView() {
         setContentView(R.layout.timing_activity);
@@ -96,7 +127,11 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void findViews() {
-        Log.e("Tag", "onCreat");
+
+
+
+
+        Log.e(TAG, "onCreat");
         toolbar = (Toolbar) findViewById(R.id.timing_toolbar);
         toolbar.setTitleTextColor(Color.parseColor("#ffffff")); //设置标题颜色
         toolbar.setTitle("仪表盘");//设置Toolbar标题
@@ -141,16 +176,17 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         intentFilter.addAction("com.example.broadcasttest.LOCAL_BROADCAST");
         localReceiver = new LocalReceiver();
         localBroadcastManager.registerReceiver(localReceiver, intentFilter); // 注册本地广播监听器
-        backgroundColor1 = Color.parseColor("#8bc34a");
-        backgroundColor2 = Color.parseColor("#3f51b5");
-        backgroundColor3 = Color.parseColor("#00bcd4");
-        backgroundColor4 = Color.parseColor("#e91e63");
-        backgroundColor0 = Color.parseColor("#0091EA");
         myLocationManager = new MyLocationManager(mMapView);// 初始化地图和定位的相关信息
     }
 
     @Override
     public void showContent() {
+        backgroundColor1 = Color.parseColor("#8bc34a");
+        backgroundColor2 = Color.parseColor("#3f51b5");
+        backgroundColor3 = Color.parseColor("#00bcd4");
+        backgroundColor4 = Color.parseColor("#e91e63");
+        backgroundColor0 = Color.parseColor("#0091EA");
+
         // 设置监听
         ib_timing_switching.setOnClickListener(this);
         ib_timing_myloc.setOnClickListener(this);
@@ -163,6 +199,72 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         ib_timing_location2.setOnClickListener(this);
     }
 
+    @Override
+    protected void onStart(){
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop(){
+        Log.e(TAG, "stop");
+        myLocationManager.orientationListenerStop();// 关闭方向传感器
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy(){
+        Log.e(TAG, "destory");
+        super.onDestroy();
+        // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
+        mMapView.onDestroy();
+        mMapView = null;
+        localBroadcastManager.unregisterReceiver(localReceiver);
+    }
+
+    @Override
+    protected void onResume(){
+        Log.e(TAG, "resume");
+        super.onResume();
+        // 在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
+        mMapView.onResume();
+        myLocationManager.onResume();
+        myLocationManager.locationClientStart();// 开启定位
+    }
+
+    @Override
+    protected void onPause(){
+        Log.e(TAG, "pause");
+        super.onPause();
+        // 在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
+        myLocationManager.onPause();
+        mMapView.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.e(TAG, "onBackPressed");
+        if (isRiding){
+            Log.e(TAG, "骑行");
+            Intent intent = new Intent(MyApplication.getContext(), HomeActivity.class);
+            startActivity(intent);
+        }else{
+            Log.e(TAG, "未骑行");
+            super.onBackPressed();
+        }
+    }
+
+    // 设置toolbar返回按钮的监听听
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // 广播接收器 用于更新UI显示的数据
     class LocalReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -179,136 +281,244 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         chronometer.setFormat("%s");
         chronometerRest.setFormat("%s");
         final Point p = getLocationInView(revealColorView, view);
-        final Point pi = getLocationInView(revealColorView, view);
         switch (view.getId()){
             case R.id.ib_timing_start : // 开始骑行
-                try {
-                    myLocationManager.changeIsRiding(true);
-                    myLocationManager.locationClientStart();// 开启定位
-                    myLocationManager.locationClientStart();// 打开传感器
-                    chronometer.setBase(SystemClock.elapsedRealtime());
-                    chronometer.start();
-                    statusRun = true; // 骑行状态
-                    ib_timing_start.setVisibility(View.GONE);// 开始按钮消失
-                    ib_timing_pause.setVisibility(View.VISIBLE);// 暂停按钮显示出来
-                    ib_timing_finish.setVisibility(View.VISIBLE);// 完成按钮显示出来
-                    isRiding = true;
-                    Intent intent1 = new Intent(this, TestService.class);
-                    startService(intent1);
-                }catch (Exception e){
-                    Toast.makeText(MyApplication.getContext(),e.toString(),Toast.LENGTH_LONG).show();
-                    Log.e("ERRORRRR",e.toString());
-                }
+                startRiding();
                 break;
             case R.id.ib_timing_pause : // 暂停骑行
-                if (statusRun){
-                    myLocationManager.changeIsRiding(false);
-                    chronometerRest.setBase(SystemClock.elapsedRealtime() - recordingTime);
-                    chronometerRest.start();
-                    statusRun = false;
-                    ib_timing_pause.setVisibility(View.INVISIBLE);
-                    ib_timing_continue.setVisibility(View.VISIBLE);// 继续按钮显示出来
-
-                }
+                pauseRiding();
                 break;
             case R.id.ib_timing_continue : // 继续骑行
-                if (!statusRun){
-                    myLocationManager.changeIsRiding(true);
-                    chronometerRest.stop();
-                    recordingTime = SystemClock.elapsedRealtime()- chronometerRest.getBase();// 保存这次记录了的时间
-                    statusRun = true;
-                    ib_timing_continue.setVisibility(View.INVISIBLE);
-                    ib_timing_pause.setVisibility(View.VISIBLE);// 暂停按钮显示出来
-                }
+                continueRiding();
                 break;
             case R.id.ib_timing_finish : // 完成骑行
-                try {
-                    myLocationManager.locationClientStop();// 关闭定位
-                    myLocationManager.changeIsRiding(false);
-                    long ltotalTime = SystemClock.elapsedRealtime() - chronometer.getBase();// 获取到总的时间
-                    if (!statusRun){
-                        recordingTime = SystemClock.elapsedRealtime()- chronometerRest.getBase();
-                    }
-                    long lrestTime = recordingTime;// 获取到休息的时间
-                    mBaseTime = SystemClock.elapsedRealtime();
-                    chronometer.setBase(mBaseTime);
-                    chronometer.stop();
-                    chronometerRest.setBase(mBaseTime);
-                    chronometerRest.stop();
-                    recordingTime = 0;
-                    statusRun = false;
-                    ib_timing_continue.setVisibility(View.INVISIBLE);
-                    ib_timing_pause.setVisibility(View.INVISIBLE);// 暂停按钮显示出来
-                    ib_timing_start.setVisibility(View.VISIBLE);// 开始按钮消失
-                    ib_timing_finish.setVisibility(View.INVISIBLE);// 开始按钮消失
-                    isRiding = false;
-                    myLocationManager.overlayOptions(getResources().getColor(R.color.ColorPrimary));// 绘制折线,数据太短时无法绘制，会报错
-                    //*********************************************************应该放在一个线程里面执行
-
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                    String sDateTimeTotal = sdf.format(ltotalTime - TimeZone.getDefault().getRawOffset());// 减去时间差
-                    String sDateTimeRest = sdf.format(lrestTime - TimeZone.getDefault().getRawOffset());
-                    CyclingRecord cyclingRecord = myLocationManager.getCyclingRecord();
-                    cyclingRecord.setTotalTime(ltotalTime);
-                    cyclingRecord.setRestTime(lrestTime);
-                    cyclingRecord.setTotalTimeStr(sDateTimeTotal);
-                    cyclingRecord.setRestTimeStr(sDateTimeRest);
-                    cyclingRecord.setAverageSpeed(Double.parseDouble(getAvSpeed(ltotalTime - lrestTime, cyclingRecord.getDistance())));
-                    cyclingRecord.save();
-                    Intent intent11 = new Intent(this, TestService.class);
-                    stopService(intent11);
-                }catch (Exception e){
-                    Toast.makeText(MyApplication.getContext(),e.toString(),Toast.LENGTH_LONG).show();
-                    Log.e("Exceptiiong", e.toString());
-                }
+                finishRiding();
                 break;
             case R.id.ib_timing_color : // 切换面板背景颜色
-                switch (changecolor){
-                    case 1 :
-                        revealColorView.reveal(p.x, p.y, backgroundColor1, view.getHeight() / 2, 500, null);
-                        changecolor++;
-                        break;
-                    case 2 :
-                        revealColorView.reveal(p.x, p.y, backgroundColor2, view.getHeight() / 2, 500, null);
-                        changecolor++;
-                        break;
-                    case 3 :
-                        revealColorView.reveal(p.x, p.y, backgroundColor3, view.getHeight() / 2, 500, null);
-                        changecolor++;
-                        break;
-                    case 4 :
-                        revealColorView.reveal(p.x, p.y, backgroundColor4, view.getHeight() / 2, 500, null);
-                        changecolor = 0;
-                        break;
-                    case 0 :
-                        revealColorView.hide(p.x, p.y, backgroundColor0, 0, 850, null);
-                        changecolor++;
-                        break;
-                }
+                changeBgColor(p,view);
                 break;
             case R.id.ib_timing_location :
-                toggleInformationView(pi);
+                toggleInformationView(p);
                 break;
             case R.id.ib_timing_location2 :
-                toggleInformationView(pi);
+                toggleInformationView(p);
                 break;
             case R.id.ib_timing_switching : // 切换地图显示模式
-                switch (mCurrentStyle){
-                    case 0:
-                        mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
-                        mCurrentStyle = 2;
-                        break;
-                    case 2:
-                        mCurrentMode = MyLocationConfiguration.LocationMode.COMPASS;
-                        mCurrentStyle = 0;
-                        break;
-                }
-                myLocationManager.changeConfiguration(mCurrentMode);
+                switchingCurrentMode();
                 break;
             case R.id.ib_timing_myloc :
                 myLocationManager.center2myLoc();// 移动到当前位置
                 break;
         }
+    }
+
+    public void startRiding(){
+        Log.e(TAG,"lllll");
+        final MaterialDialog mMaterialDialog = new MaterialDialog(this);
+        mMaterialDialog.setTitle("提示");
+        mMaterialDialog.setMessage("准备好开始骑行了吗？别忘了要带东西哦~");
+        mMaterialDialog.setPositiveButton("开始吧", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMaterialDialog.dismiss();
+                // 当定位不成功的时候应该return
+                try {
+                    myLocationManager.locationClientStart();// 开启定位
+                    int code = myLocationManager.getMLocType();
+                    if (code == 61 || code == 161 || code == 65 || code == 66 || code == 68) {
+                        isRiding = true;
+                        statusRun = true;
+                        myLocationManager.changeIsRiding(statusRun);
+                        chronometer.setBase(SystemClock.elapsedRealtime());
+                        chronometer.start();// 开始计时
+                        ib_timing_start.setVisibility(View.GONE);
+                        ib_timing_pause.setVisibility(View.VISIBLE);
+                        ib_timing_finish.setVisibility(View.VISIBLE);
+
+/*                        Intent intent1 = new Intent(TimingActivity.this, TestService.class);// 启动前台service 注意记得接触绑定
+                        startService(intent1);*/
+                        Intent bindIntent = new Intent(TimingActivity.this, TestService.class);
+                        bindService(bindIntent, connection, BIND_AUTO_CREATE); // 绑定服务
+                    }else{
+                        Toast.makeText(MyApplication.getContext(), "定位失败，请检查定位的相关设置", Toast.LENGTH_SHORT).show();
+                    }
+                }catch (Exception e){
+                    Log.e(TAG,e.toString());
+                }
+            }
+        });
+        mMaterialDialog.setNegativeButton("还没有", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMaterialDialog.dismiss();
+                return;
+            }
+        });
+
+        mMaterialDialog.show();
+    }
+
+    public void pauseRiding(){
+        if (statusRun){
+            statusRun = false;
+            myLocationManager.changeIsRiding(statusRun);
+            chronometerRest.setBase(SystemClock.elapsedRealtime() - recordingTime);
+            chronometerRest.start();
+            ib_timing_pause.setVisibility(View.INVISIBLE);
+            ib_timing_continue.setVisibility(View.VISIBLE);// 继续按钮显示出来
+        }
+    }
+
+    public void continueRiding(){
+        if (!statusRun){
+            statusRun = true;
+            myLocationManager.changeIsRiding(statusRun);
+            chronometerRest.stop();
+            recordingTime = SystemClock.elapsedRealtime()- chronometerRest.getBase();// 保存这次记录了的时间
+            ib_timing_continue.setVisibility(View.INVISIBLE);
+            ib_timing_pause.setVisibility(View.VISIBLE);// 暂停按钮显示出来
+        }
+    }
+    public void finishRiding(){
+        pauseRiding();
+        cyclingRecord = myLocationManager.getCyclingRecord();
+        final MaterialDialog mMaterialDialog = new MaterialDialog(this);
+        mMaterialDialog.setTitle("提示");
+        mMaterialDialog.setMessage("是否要结束本次骑行？");
+        if (cyclingRecord.getDistance() < MIN_DISTANCE){
+            mMaterialDialog.setMessage("本次骑行距离太短，无法保存，是否要结束本次骑行？");
+        }
+        mMaterialDialog.setPositiveButton("是", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMaterialDialog.dismiss();
+                try {
+                    if (cyclingRecord.getDistance() > MIN_DISTANCE) {
+                        isRiding = false;
+                        ltotalTime = SystemClock.elapsedRealtime() - chronometer.getBase();// 获取到总的时间
+                        if (!statusRun) {
+                            recordingTime = SystemClock.elapsedRealtime() - chronometerRest.getBase();
+                        }
+                        lrestTime = recordingTime;// 获取到休息的时间
+                        statusRun = false;
+                        myLocationManager.changeIsRiding(statusRun);
+                        myLocationManager.locationClientStop();// 关闭定位
+                        // 重置计时器
+                        mBaseTime = SystemClock.elapsedRealtime();
+                        chronometer.setBase(mBaseTime);
+                        chronometerRest.setBase(mBaseTime);
+                        chronometer.stop();
+                        chronometerRest.stop();
+                        recordingTime = 0;
+
+                        // 按钮回归初始状态
+                        ib_timing_continue.setVisibility(View.INVISIBLE);
+                        ib_timing_pause.setVisibility(View.INVISIBLE);
+                        ib_timing_start.setVisibility(View.VISIBLE);
+                        ib_timing_finish.setVisibility(View.INVISIBLE);
+
+                        // 绘制折线,数据太短时无法绘制，会报错（未解决） --应该当骑行时间太短的时候不保存这次的骑行数据
+                        myLocationManager.overlayOptions(getResources().getColor(R.color.ColorPrimary));
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // 保存骑行数据
+                                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                                String sDateTimeTotal = sdf.format(ltotalTime - TimeZone.getDefault().getRawOffset());// 减去时间差
+                                String sDateTimeRest = sdf.format(lrestTime - TimeZone.getDefault().getRawOffset());
+                                cyclingRecord.setTotalTime(ltotalTime);
+                                cyclingRecord.setRestTime(lrestTime);
+                                cyclingRecord.setTotalTimeStr(sDateTimeTotal);
+                                cyclingRecord.setRestTimeStr(sDateTimeRest);
+                                cyclingRecord.setAverageSpeed(Double.parseDouble(getAvSpeed(ltotalTime - lrestTime, cyclingRecord.getDistance())));
+                                cyclingRecord.save();
+                                ltotalTime = 0;
+                                lrestTime = 0;
+                            }
+                        }).start();
+                        // 停止前台service
+/*                        Intent intent11 = new Intent(TimingActivity.this, TestService.class);
+                        stopService(intent11);*/
+                        unbindService(connection); // 解绑服务
+                    } else {
+                        // *****************************还需要修改
+                        Toast.makeText(MyApplication.getContext(), "本次骑行距离太短，无法保存", Toast.LENGTH_SHORT).show();
+                        isRiding = false;
+                        statusRun = false;
+                        myLocationManager.changeIsRiding(statusRun);
+                        myLocationManager.locationClientStop();// 关闭定位
+                        // 重置计时器
+                        mBaseTime = SystemClock.elapsedRealtime();
+                        chronometer.setBase(mBaseTime);
+                        chronometerRest.setBase(mBaseTime);
+                        chronometer.stop();
+                        chronometerRest.stop();
+                        recordingTime = 0;
+
+                        // 按钮回归初始状态
+                        ib_timing_continue.setVisibility(View.INVISIBLE);
+                        ib_timing_pause.setVisibility(View.INVISIBLE);
+                        ib_timing_start.setVisibility(View.VISIBLE);
+                        ib_timing_finish.setVisibility(View.INVISIBLE);
+                        // 停止前台service
+/*                        Intent intent11 = new Intent(TimingActivity.this, TestService.class);
+                        stopService(intent11);*/
+                        unbindService(connection); // 解绑服务
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, e.toString());
+                }
+            }
+        });
+        mMaterialDialog.setNegativeButton("否", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mMaterialDialog.dismiss();
+                continueRiding();
+                return;
+            }
+        });
+        mMaterialDialog.show();
+
+    }
+
+    public void changeBgColor(Point p,View view){
+        switch (changecolor){
+            case 1 :
+                revealColorView.reveal(p.x, p.y, backgroundColor1, view.getHeight() / 2, AnimatorTime, null);
+                changecolor++;
+                break;
+            case 2 :
+                revealColorView.reveal(p.x, p.y, backgroundColor2, view.getHeight() / 2, AnimatorTime, null);
+                changecolor++;
+                break;
+            case 3 :
+                revealColorView.reveal(p.x, p.y, backgroundColor3, view.getHeight() / 2, AnimatorTime, null);
+                changecolor++;
+                break;
+            case 4 :
+                revealColorView.reveal(p.x, p.y, backgroundColor4, view.getHeight() / 2, AnimatorTime, null);
+                changecolor = 0;
+                break;
+            case 0 :
+                revealColorView.hide(p.x, p.y, backgroundColor0, 0, AnimatorTime, null);
+                changecolor++;
+                break;
+        }
+    }
+
+    public void switchingCurrentMode(){
+        switch (mCurrentStyle){
+            case 0:
+                mCurrentMode = MyLocationConfiguration.LocationMode.NORMAL;
+                mCurrentStyle = 2;
+                break;
+            case 2:
+                mCurrentMode = MyLocationConfiguration.LocationMode.COMPASS;
+                mCurrentStyle = 0;
+                break;
+        }
+        myLocationManager.changeConfiguration(mCurrentMode);
     }
 
     // 得到保留两位数的平均速度KM/H（毫秒，公里）
@@ -319,19 +529,15 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     // 切换百度地图 显示或隐藏
     public void toggleInformationView(Point p) {
         //final View infoContainer = findViewById(R.id.fl_timing_baidumap);
-        float radius = Math.max(infoContainer.getWidth(), infoContainer.getHeight()) * 2.0f;
+/*        float radius = Math.max(infoContainer.getWidth(), infoContainer.getHeight()) * 2.0f;
 
-/*        if (infoContainer.getVisibility() == View.INVISIBLE) {
+        if (infoContainer.getVisibility() == View.INVISIBLE) {
             myLocationManager.locationClientStart();// 开启定位
             myLocationManager.orientationListenerStart();// 开启方向传感器
             Animator reveal = ViewAnimationUtils.createCircularReveal(infoContainer, p.x, p.y, 0, radius);
-            reveal.setDuration(500);
+            reveal.setDuration(AnimatorTime);
             infoContainer.setVisibility(View.VISIBLE);
             reveal.start();
-            CyclingRecord cyclingRecord = new CyclingRecord();
-            SqliteUtil sqliteUtil = new SqliteUtil();
-            cyclingRecord = sqliteUtil.selectSingleCyclingRecord(1);
-            Log.e("TAGGG",cyclingRecord.getMdateTime()+" "+cyclingRecord.getAverageSpeed());
         } else {
             Animator reveal = ViewAnimationUtils.createCircularReveal(
                     infoContainer, p.x, p.y, radius, 0);
@@ -339,13 +545,10 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     infoContainer.setVisibility(View.INVISIBLE);
-                    if (!isRiding) {// 如果不是骑行中，关闭定位
-                        myLocationManager.locationClientStop();
-                    }
                     myLocationManager.orientationListenerStop();// 关闭方向传感器
                 }
             });
-            reveal.setDuration(500);
+            reveal.setDuration(AnimatorTime);
             reveal.start();
         }*/
     }
@@ -365,70 +568,4 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         return new Point(l1[0], l1[1]);
     }
 
-
-    @Override
-    protected void onStart(){
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop(){
-        Log.e("Tag", "stop");
-        myLocationManager.orientationListenerStop();// 关闭方向传感器
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy(){
-        Log.e("Tag", "destory");
-        super.onDestroy();
-        // 在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
-        mMapView.onDestroy();
-        mMapView = null;
-        localBroadcastManager.unregisterReceiver(localReceiver);
-    }
-
-    @Override
-    protected void onResume(){
-        Log.e("Tag", "resume");
-        super.onResume();
-        // 在activity执行onResume时执行mMapView. onResume ()，实现地图生命周期管理
-        mMapView.onResume();
-        myLocationManager.onResume();
-        myLocationManager.locationClientStart();// 开启定位
-    }
-
-    @Override
-    protected void onPause(){
-        Log.e("Tag", "pause");
-        super.onPause();
-        // 在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
-        myLocationManager.onPause();
-        mMapView.onPause();
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        Log.e("Tag", "onBackPressed");
-        if (isRiding){
-            Log.e("Tag", "骑行");
-            Intent intent = new Intent(MyApplication.getContext(), HomeActivity.class);
-            startActivity(intent);
-        }else{
-            Log.e("Tag", "未骑行");
-            super.onBackPressed();
-        }
-    }
-    // 设置toolbar返回按钮的监听听
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            finish();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }
