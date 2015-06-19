@@ -57,7 +57,7 @@ public class TravelScrollFragment extends Fragment {
 
     @Override
     public void onStart() {
-        Log.e("TEST","START4565");
+        Log.e("TEST","START123556");
         super.onStart();
         fb_travel_scadd.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -49,7 +49,7 @@
         </activity>
 
         <!--activity-->
-        <activity android:name=".ui.activity.TimingActivity"/>
+        <activity android:name=".ui.activity.TimingActivity" android:launchMode="singleTop"/>
         <activity android:name=".ui.activity.RecordShareActivity" android:theme="@style/ShareTheme"/><!--设置单独的主题-->
         <activity android:name=".ui.activity.RecordMoreActivity" android:theme="@style/ShareTheme"/><!--设置单独的主题-->
 
