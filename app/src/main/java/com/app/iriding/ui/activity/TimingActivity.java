@@ -2,6 +2,7 @@ package com.app.iriding.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -114,7 +115,6 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     private Toolbar toolbar;
     private CyclingRecord cyclingRecord;
 
-    //
     private long ltotalTime = 0;
     private long lrestTime = 0;
 
@@ -122,12 +122,37 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
 
     private TestService.TestBind testBind;
     private ServiceConnection connection = new ServiceConnection() {
+
         @Override public void onServiceDisconnected(ComponentName name) {
+
         }
+
         @Override public void onServiceConnected(ComponentName name, IBinder service) {
             testBind = (TestService.TestBind) service;
             testBind.startBind();
             testBind.endBind();
+            testBind.locationClientStart();// 开启定位
+            if (isRiding){
+                testBind.isStop(false);
+                ib_timing_start.setVisibility(View.GONE);
+                ib_timing_finish.setVisibility(View.VISIBLE);
+                chronometer.setFormat("%s");
+                chronometerRest.setFormat("%s");
+                chronometer.setBase(SystemClock.elapsedRealtime() - (testBind.getToalTime() * 1000));// 读取service里面的总时间
+                chronometer.start();// 开始计时
+                recordingTime = testBind.getRestTime() * 1000;// 读取service里面的休息时间
+                statusRun = testBind.getStatusRun();
+                if (statusRun){
+                    ib_timing_continue.setVisibility(View.INVISIBLE);
+                    ib_timing_pause.setVisibility(View.VISIBLE);// 暂停按钮显示出来
+                    chronometerRest.setBase(SystemClock.elapsedRealtime() - recordingTime);
+                }else{
+                    ib_timing_pause.setVisibility(View.INVISIBLE);
+                    ib_timing_continue.setVisibility(View.VISIBLE);// 继续按钮显示出来
+                    chronometerRest.setBase(SystemClock.elapsedRealtime() - recordingTime);
+                    chronometerRest.start();
+                }
+            }
         }
     };
 
@@ -139,6 +164,8 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void findViews() {
         Log.e(TAG, "onCreat");
+        isRiding = ServiceIsStart();
+        Log.e(TAG, isRiding+" service");
         Intent bindIntent = new Intent(TimingActivity.this, TestService.class);
         bindService(bindIntent, connection, BIND_AUTO_CREATE); // 绑定服务
 
@@ -232,12 +259,9 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         localBroadcastManager.unregisterReceiver(localReceiver);
     }
 
+    //************
     @Override
     protected void onResume(){
-
-
-
-
         Log.e(TAG, "resume");
         super.onResume();
         mMapView.onResume();
@@ -248,7 +272,6 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         }catch (Exception e){
             Log.e(TAG, e.toString());
         }
-
     }
 
     @Override
@@ -262,6 +285,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onBackPressed() {
         Log.e(TAG, "onBackPressed");
+        unbindService(connection);
         super.onBackPressed();
     }
 
@@ -270,12 +294,12 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
+            unbindService(connection);// 销毁activity会自动解除与service的绑定，但是会出现报一个错误，所以在这里手动解除绑定
             finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 
     @Override
@@ -332,6 +356,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                         isRiding = true;
                         statusRun = true;
                         testBind.changeStatusRun(statusRun);
+                        testBind.startRiding();
                         chronometer.setBase(SystemClock.elapsedRealtime());
                         chronometer.start();// 开始计时
                         ib_timing_start.setVisibility(View.GONE);
@@ -362,6 +387,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         if (statusRun){
             statusRun = false;
             testBind.changeStatusRun(statusRun);
+            testBind.pauseRiding();
             chronometerRest.setBase(SystemClock.elapsedRealtime() - recordingTime);
             chronometerRest.start();
             ib_timing_pause.setVisibility(View.INVISIBLE);
@@ -373,6 +399,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         if (!statusRun){
             statusRun = true;
             testBind.changeStatusRun(statusRun);
+            testBind.continueRiding();
             chronometerRest.stop();
             recordingTime = SystemClock.elapsedRealtime()- chronometerRest.getBase();// 保存这次记录了的时间
             ib_timing_continue.setVisibility(View.INVISIBLE);
@@ -402,6 +429,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                         lrestTime = recordingTime;// 获取到休息的时间
                         statusRun = false;
                         testBind.changeStatusRun(statusRun);
+                        testBind.finishRiding();
                         // 重置计时器
                         mBaseTime = SystemClock.elapsedRealtime();
                         chronometer.setBase(mBaseTime);
@@ -545,7 +573,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     infoContainer.setVisibility(View.INVISIBLE);
-                    mBaiduMap.setMyLocationEnabled(false);// 开启图层定位
+                    mBaiduMap.setMyLocationEnabled(false);// 关闭图层定位
                     myOrientationListener.stop();// 关闭方向传感器
                 }
             });
@@ -631,4 +659,16 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
         });
     }
 
+    private boolean ServiceIsStart(){
+        ActivityManager mActivityManager =
+                (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> mServiceList = mActivityManager.getRunningServices(30);
+        final String className = "com.app.iriding.service.TestService";
+        for(int i = 0; i < mServiceList.size(); i ++){
+            if(className.equals(mServiceList.get(i).service.getClassName())){
+                return true;
+            }
+        }
+        return false;
+    }
 }

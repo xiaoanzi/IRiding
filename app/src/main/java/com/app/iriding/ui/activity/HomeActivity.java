@@ -1,6 +1,7 @@
 package com.app.iriding.ui.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.design.widget.NavigationView;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.app.iriding.R;
+import com.app.iriding.util.SwitchJsonString;
 import com.github.florent37.materialviewpager.MaterialViewPager;
 
 
@@ -171,6 +173,41 @@ public class HomeActivity extends BaseActivity{
                 return true;
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        Log.e("Home", "onResume2");
+        super.onResume();
+        // 读取临时保存的数据
+        SharedPreferences sharedPreferences = getSharedPreferences("lastData",MODE_PRIVATE);
+        String mCurrentLantitude= sharedPreferences .getString("mCurrentLantitude","");
+        String mCurrentLongitude= sharedPreferences .getString("mCurrentLongitude","");
+        String maxLantitude= sharedPreferences .getString("maxLantitude","");
+        String maxtLongitude= sharedPreferences .getString("maxtLongitude","");
+        String minLantitude= sharedPreferences .getString("minLantitude","");
+        String mintLongitude= sharedPreferences .getString("mintLongitude","");
+        String distance= sharedPreferences .getString("distance","");
+        float maxSpeed = sharedPreferences .getFloat("maxSpeed", 0);
+        int totalTime = sharedPreferences .getInt("totalTime", 0);
+        int restTime = sharedPreferences .getInt("restTime", 0);
+        boolean statusRun = sharedPreferences .getBoolean("statusRun", false);
+        String mCyclingPoints= sharedPreferences .getString("mCyclingPoints", "");
+        Log.e("Home", mCurrentLantitude);
+        Log.e("Home", mCurrentLongitude);
+        Log.e("Home", maxLantitude);
+        Log.e("Home", maxtLongitude);
+        Log.e("Home", minLantitude);
+        Log.e("Home", mintLongitude);
+        Log.e("Home", distance);
+        Log.e("Home", mCyclingPoints);
+        Log.e("Home", maxSpeed+"");
+        Log.e("Home", totalTime+"");
+        Log.e("Home", restTime+"");
+        Log.e("Home", statusRun+"");
+        if (totalTime != 0){
+            Log.e("Home", "上一次有数据的啦");
+        }
     }
 
     @Override

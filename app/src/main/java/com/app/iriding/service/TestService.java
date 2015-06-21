@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -35,6 +36,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by 王海 on 2015/5/29.
@@ -60,12 +63,19 @@ public class TestService extends Service {
 
     private double distance = 0;// 总距离
     private float maxSpeed = 0;// 最高速度
-    private float currentSpeed = 0;// 最高速度
+    private float currentSpeed = 0;// 当前速度
+
+    private Timer totalTimer;
+    private Timer restTimer;
+    private TimerTask totalTimerTask;
+    private TimerTask restTimerTask;
+    private int totalTime = 0;// 总时间
+    private int restTime = 0;// 休息时间
 
     private NumberFormat ddf1;
     private int mLocType = 0;
     List<LatLng> pts = new ArrayList<LatLng>();// 绘制折线的坐标数组
-    List<CyclingPoint> mCyclingPoints = new ArrayList<CyclingPoint>();// 绘制折线的坐标数组
+    List<CyclingPoint> mCyclingPoints = new ArrayList<CyclingPoint>();// 保存到数据库的坐标数组
     private boolean statusRun = false;
     private boolean isStop = false;
     private volatile boolean isFristLocationAdd = true;// 是否是开始骑行第一次加入坐标
@@ -88,15 +98,57 @@ public class TestService extends Service {
                 mLocationClient.start();
             }
         }
-
         //关闭定位
         public void locationClientStop(){
             mLocationClient.stop();
         }
+        public void startRiding(){
+            totalTimer = new Timer();
+            totalTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    totalTime++;
+                }
+            };
+            totalTimer.scheduleAtFixedRate(totalTimerTask, 1000, 1000);
+        }
+        public void pauseRiding(){
+            restTimer = new Timer();
+            restTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    restTime++;
+                }
+            };
+            restTimer.scheduleAtFixedRate(restTimerTask, 1000, 1000);
+        }
+        public void continueRiding(){
+            if(restTimer != null){
+                restTimer.cancel();
+            }
+        }
+        public void finishRiding(){
+            if(totalTimer != null){
+                totalTimer.cancel();
+            }
+            if(restTimer != null){
+                restTimer.cancel();
+            }
+        }
 
+        public int getToalTime(){
+            return totalTime;
+        }
+        public int getRestTime(){
+            return restTime;
+        }
         // 改变是否为骑行状态
         public void changeStatusRun(boolean status){
             statusRun = status;
+        }
+
+        public boolean getStatusRun(){
+            return statusRun;
         }
 
         // 是否在后台
@@ -129,7 +181,14 @@ public class TestService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.e(TAG, "onBind");
         return mTestBind;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.e(TAG, "onUnbind");
+        return super.onUnbind(intent);
     }
 
     @Override public void onCreate() {
@@ -157,6 +216,21 @@ public class TestService extends Service {
     @Override
     public void onDestroy() {
         Log.e(TAG, "onDestroy");
+        // 保存因为意外关闭service时的数据 ----这种方法不能保存，当service强制停止时不会回调这个方法
+/*        SharedPreferences.Editor editor = getSharedPreferences("lastData",MODE_PRIVATE).edit();
+        editor.putString("mCurrentLantitude", mCurrentLantitude + "");
+        editor.putString("mCurrentLongitude", mCurrentLongitude + "");
+        editor.putString("maxLantitude", maxLantitude+"");
+        editor.putString("maxtLongitude", maxtLongitude+"");
+        editor.putString("minLantitude", minLantitude+"");
+        editor.putString("mintLongitude", mintLongitude+"");
+        editor.putString("distance", distance+"");
+        editor.putFloat("maxSpeed", maxSpeed);
+        editor.putInt("totalTime", totalTime);
+        editor.putInt("restTime", restTime);
+        editor.putBoolean("statusRun", statusRun);
+        editor.putString("mCyclingPoints", SwitchJsonString.toCyclingPointString(mCyclingPoints));
+        editor.commit();*/
         super.onDestroy();
     }
 
