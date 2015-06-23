@@ -107,8 +107,6 @@ public class HomeActivity extends BaseActivity{
             @Override
             public void setPrimaryItem(ViewGroup container, int position, Object object) {
                 super.setPrimaryItem(container, position, object);
-
-                //only if position changed
                 if (position == oldPosition)
                     return;
                 oldPosition = position;
@@ -121,7 +119,7 @@ public class HomeActivity extends BaseActivity{
                         color = getResources().getColor(R.color.ColorPrimary);
                         break;
                     case 1:
-                        imageUrl = "http://www.droid-life.com/wp-content/uploads/2014/10/lollipop-wallpapers10.jpg";
+                        imageUrl = "http://img4q.duitang.com/uploads/item/201310/07/20131007102558_yYSNe.jpeg";
                         color = getResources().getColor(R.color.cyan);
                         break;
                 }
@@ -158,6 +156,7 @@ public class HomeActivity extends BaseActivity{
 
     }
 
+    // 抽屉菜单的选项
     @Override
     public void showContent() {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -165,7 +164,7 @@ public class HomeActivity extends BaseActivity{
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.navigation_sub_item_2:
-                        mDrawerLayout.closeDrawers();
+//                        mDrawerLayout.closeDrawers();
                         Intent intent = new Intent(HomeActivity.this, RecordMoreActivity.class);
                         startActivity(intent);
                         break;

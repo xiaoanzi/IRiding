@@ -65,9 +65,7 @@ public class RecordShareActivity extends BaseActivity{
     public void getData() {
         sqliteUtil = new SqliteUtil();
         Intent intent = getIntent();
-        Log.e("TIMEEEE00", new Date().toString());
         cyclingRecord = sqliteUtil.selectSingleCyclingRecord(intent.getLongExtra("CyclingRecordId",-1));
-        Log.e("TIMEEEE00", new Date().toString());
         toolbar.setTitleTextColor(Color.parseColor("#ffffff")); //设置标题颜色
         toolbar.setTitle(cyclingRecord.getMdateTimeStr());//设置Toolbar标题
         setSupportActionBar(toolbar);

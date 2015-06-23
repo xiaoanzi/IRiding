@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.IBinder;
@@ -34,6 +35,7 @@ import com.app.iriding.service.TestService;
 import com.app.iriding.ui.listener.MyOrientationListener;
 import com.app.iriding.util.MyApplication;
 import com.app.iriding.util.SqliteUtil;
+import com.app.iriding.util.SwitchJsonString;
 import com.baidu.location.BDLocation;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.MapStatusUpdate;
@@ -124,7 +126,21 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
     private ServiceConnection connection = new ServiceConnection() {
 
         @Override public void onServiceDisconnected(ComponentName name) {
-
+            SharedPreferences.Editor editor = getSharedPreferences("lastData",MODE_PRIVATE).edit();
+            editor.putString("mCurrentLantitude", 123 + "");
+            editor.putString("mCurrentLongitude", 234 + "");
+            editor.putString("maxLantitude", 456+"");
+            editor.putString("maxtLongitude", 678+"");
+            editor.putString("minLantitude", 901+"");
+            editor.putString("mintLongitude", 234+"");
+            editor.putString("distance", 567+"");
+            editor.putFloat("maxSpeed", 34);
+            editor.putInt("totalTime", 34);
+            editor.putInt("restTime", 34);
+            editor.putBoolean("statusRun", true);
+            editor.putString("mCyclingPoints", "qqqqqqqqqqqqqqqqqq");
+            editor.commit();
+            Log.e(TAG, "取消绑定");
         }
 
         @Override public void onServiceConnected(ComponentName name, IBinder service) {
@@ -444,8 +460,6 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                         ib_timing_start.setVisibility(View.VISIBLE);
                         ib_timing_finish.setVisibility(View.INVISIBLE);
 
-                        // 绘制折线,数据太短时无法绘制，会报错（未解决） --应该当骑行时间太短的时候不保存这次的骑行数据
-//                        myLocationManager.overlayOptions(getResources().getColor(R.color.ColorPrimary));
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -459,38 +473,19 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                                 cyclingRecord.setRestTimeStr(sDateTimeRest);
                                 cyclingRecord.setAverageSpeed(Double.parseDouble(getAvSpeed(ltotalTime - lrestTime, cyclingRecord.getDistance())));
                                 cyclingRecord.save();
-                                ltotalTime = 0;
-                                lrestTime = 0;
                             }
                         }).start();
-//                        unbindService(connection); // 解绑服务
+                        ltotalTime = 0;
+                        lrestTime = 0;
                         // 停止前台service
                         Intent intent11 = new Intent(TimingActivity.this, TestService.class);
                         stopService(intent11);
                     } else {
-                        // *****************************还需要修改
                         Toast.makeText(MyApplication.getContext(), "本次骑行距离太短，无法保存", Toast.LENGTH_SHORT).show();
-                        isRiding = false;
-                        statusRun = false;
-                        testBind.changeStatusRun(statusRun);
-                        // 重置计时器
-                        mBaseTime = SystemClock.elapsedRealtime();
-                        chronometer.setBase(mBaseTime);
-                        chronometerRest.setBase(mBaseTime);
-                        chronometer.stop();
-                        chronometerRest.stop();
-                        recordingTime = 0;
-
-                        // 按钮回归初始状态
-                        ib_timing_continue.setVisibility(View.INVISIBLE);
-                        ib_timing_pause.setVisibility(View.INVISIBLE);
-                        ib_timing_start.setVisibility(View.VISIBLE);
-                        ib_timing_finish.setVisibility(View.INVISIBLE);
-
-//                        unbindService(connection); // 解绑服务
-                        // 停止前台service
                         Intent intent11 = new Intent(TimingActivity.this, TestService.class);
                         stopService(intent11);
+                        unbindService(connection);
+                        finish();
                     }
                 } catch (Exception e) {
                     Log.e(TAG, e.toString());

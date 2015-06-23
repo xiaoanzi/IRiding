@@ -67,7 +67,7 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="月总天数(D)"
+                            android:text="月总次数(F)"
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textSize="16sp"/>
@@ -92,7 +92,7 @@
                             android:textSize="16sp"
                             android:textStyle="bold"/>
                         <TextView
-                            android:id="@+id/tv_record_mDay"
+                            android:id="@+id/tv_record_mFrequency"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:text="8"

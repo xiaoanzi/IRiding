@@ -30,12 +30,12 @@
             android:orientation="vertical"
             android:gravity="center">
             <Chronometer
+                android:id="@+id/ch_timing_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="56sp"
                 android:textColor="@color/White"
-                android:format="00:00"
-                android:id="@+id/ch_timing_time"/>
+                android:format="00:00" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -55,13 +55,13 @@
                 android:orientation="vertical"
                 android:layout_weight="1">
                 <TextView
+                    android:id="@+id/tv_timing_distance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="34sp"
                     android:text="0"
                     android:textColor="@color/White"
-                    android:layout_gravity="center"
-                    android:id="@+id/tv_timing_distance"/>
+                    android:layout_gravity="center" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -77,13 +77,13 @@
                 android:layout_weight="1"
                 android:gravity="right">
                 <TextView
+                    android:id="@+id/tv_timing_current"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="34sp"
                     android:text="0"
                     android:textColor="@color/White"
-                    android:layout_gravity="center"
-                    android:id="@+id/tv_timing_current"/>
+                    android:layout_gravity="center" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -108,12 +108,12 @@
                 android:gravity="right"
                 android:layout_marginRight="16dp">
                 <TextView
+                    android:id="@+id/tv_timing_average"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="34sp"
                     android:text="0"
-                    android:textColor="@color/White"
-                    android:id="@+id/tv_timing_average"/>
+                    android:textColor="@color/White" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -128,12 +128,12 @@
                 android:layout_weight="1"
                 android:layout_marginLeft="16dp">
                 <TextView
+                    android:id="@+id/tv_timing_maximum"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="34sp"
                     android:text="0"
-                    android:textColor="@color/White"
-                    android:id="@+id/tv_timing_maximum"/>
+                    android:textColor="@color/White" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -151,12 +151,12 @@
             android:orientation="vertical"
             android:gravity="center">
             <Chronometer
+                android:id="@+id/ch_timing_rest"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="24sp"
                 android:textColor="@color/White"
-                android:format="00:00"
-                android:id="@+id/ch_timing_rest"/>
+                android:format="00:00" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -165,39 +165,42 @@
                 android:textColor="@color/White"/>
         </LinearLayout>
 
-        <!--开始 、暂停 、继续 、停止按钮-->
+        <!--开始 、暂停 、继续 、停止按钮 、变色 和 切换地图按钮-->
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/rl_timing_Control"
-            android:layout_marginTop="80dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="16dp">
             <ImageButton
+                android:id="@+id/ib_timing_continue"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_play_arrow_white_48dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
                 android:layout_marginLeft="16dp"
-                android:visibility="invisible"
-                android:id="@+id/ib_timing_continue"/>
+                android:layout_centerVertical="true"
+                android:visibility="invisible" />
             <ImageButton
+                android:id="@+id/ib_timing_pause"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_pause_white_48dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
                 android:layout_marginLeft="16dp"
-                android:visibility="invisible"
-                android:id="@+id/ib_timing_pause"/>
+                android:layout_centerVertical="true"
+                android:visibility="invisible" />
             <ImageButton
+                android:id="@+id/ib_timing_start"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_directions_bike_white_48dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
-                android:layout_centerInParent="true"
-                android:id="@+id/ib_timing_start"/>
+                android:layout_centerInParent="true" />
             <ImageButton
+                android:id="@+id/ib_timing_finish"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_assistant_photo_white_48dp"
@@ -205,34 +208,27 @@
                 android:scaleType="centerCrop"
                 android:layout_marginRight="16dp"
                 android:layout_alignParentRight="true"
-                android:visibility="invisible"
-                android:id="@+id/ib_timing_finish"/>
-        </RelativeLayout>
-
-        <!--变色 和 切换地图按钮-->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/rl_timing_change"
-            android:layout_marginBottom="16dp">
+                android:layout_centerVertical="true"
+                android:visibility="invisible" />
             <ImageButton
+                android:id="@+id/ib_timing_color"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_color_lens_white_36dp"
                 android:background="@android:color/transparent"
                 android:layout_marginLeft="16dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentBottom="true"
-                android:id="@+id/ib_timing_color" />
+                android:layout_alignParentBottom="true" />
             <ImageButton
+                android:id="@+id/ib_timing_location"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_location_on_white_36dp"
                 android:background="@android:color/transparent"
                 android:layout_marginRight="16dp"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:id="@+id/ib_timing_location"/>
+                android:layout_alignParentBottom="true" />
         </RelativeLayout>
+
     </LinearLayout>
     </merge>
