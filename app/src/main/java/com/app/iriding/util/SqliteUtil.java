@@ -96,4 +96,15 @@ public class SqliteUtil {
                 .execute();
         return cyclingRecords;
     }
+
+    // 删除某一天的纪录
+    public boolean deleteSingleRecord(long id){
+        try{
+            CyclingRecord.delete(CyclingRecord.class, id);
+        }catch (Exception e){
+            Log.e("SQLError",e.toString() + "error");
+            return false;
+        }
+        return true;
+    }
 }

@@ -164,7 +164,7 @@ public class HomeActivity extends BaseActivity{
             public boolean onNavigationItemSelected(MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.navigation_sub_item_2:
-//                        mDrawerLayout.closeDrawers();
+//                        mDrawerLayout.closeDrawers();// 关闭抽屉
                         Intent intent = new Intent(HomeActivity.this, RecordMoreActivity.class);
                         startActivity(intent);
                         break;

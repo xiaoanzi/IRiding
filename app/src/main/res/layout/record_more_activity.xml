@@ -22,7 +22,7 @@
                 android:layout_marginRight="@dimen/cardMarginHorizontal"
                 android:layout_marginTop="@dimen/cardMarginVertical"
                 android:background="@android:color/white"
-                app:cardElevation="4dp">
+                app:cardElevation="2dp">
                 <com.prolificinteractive.materialcalendarview.MaterialCalendarView
                     android:id="@+id/cv_record_calendar"
                     android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                 android:layout_marginRight="@dimen/cardMarginHorizontal"
                 android:layout_marginTop="@dimen/cardMarginVertical"
                 android:background="@android:color/white"
-                app:cardElevation="4dp">
+                app:cardElevation="2dp">
                 <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -111,12 +111,12 @@
                 android:layout_marginRight="@dimen/cardMarginHorizontal"
                 android:layout_marginTop="@dimen/cardMarginVertical"
                 android:background="@android:color/white"
-                app:cardElevation="4dp">
+                app:cardElevation="2dp">
                 <ListView
                     android:id="@+id/lv_record_dRecord"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:divider="@color/Gray"
+                    android:divider="@color/FrenchGrey"
                     android:dividerHeight="1px"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp">

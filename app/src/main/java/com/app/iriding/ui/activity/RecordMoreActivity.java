@@ -25,6 +25,7 @@ import com.prolificinteractive.materialcalendarview.OnDateChangedListener;
 import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,7 +40,7 @@ public class RecordMoreActivity extends BaseActivity implements OnDateChangedLis
     private static final DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat FORMATTER_MONTH = new SimpleDateFormat("yyyy-MM");
     private static final DateFormat FORMATTER_TOTAL = new SimpleDateFormat("HH");
-
+    private NumberFormat ddf1;
     private MaterialCalendarView widget;
     private TextView tv_record_mDistance;
     private TextView tv_record_mTotalTime;
@@ -49,6 +50,8 @@ public class RecordMoreActivity extends BaseActivity implements OnDateChangedLis
     private TraveListViewAdapter traveListViewAdapter;
     private SqliteUtil sqliteUtil = new SqliteUtil();
     private Toolbar toolbar;
+    private String selectDay;
+    private String selectMonth;
     @Override
     public void setContentView() {
         setContentView(R.layout.record_more_activity);
@@ -56,6 +59,8 @@ public class RecordMoreActivity extends BaseActivity implements OnDateChangedLis
 
     @Override
     public void findViews() {
+        ddf1 = NumberFormat.getNumberInstance();
+        ddf1.setMaximumFractionDigits(2);
         toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         lv_travel_fiverecord = (ListView) findViewById(R.id.lv_record_dRecord);
         tv_record_mDistance = (TextView) findViewById(R.id.tv_record_mDistance);
@@ -106,6 +111,7 @@ public class RecordMoreActivity extends BaseActivity implements OnDateChangedLis
     }
 
     public void getSelectDate(String calendarDay){
+        selectDay = calendarDay;
         List<CyclingRecord> temp = sqliteUtil.selectDateCyclingRecord(calendarDay);
         if (temp.size() != 0) {
             cyclingRecords.clear();
@@ -127,10 +133,18 @@ public class RecordMoreActivity extends BaseActivity implements OnDateChangedLis
     }
 
     public void getTotalMonth(String date){
+        selectMonth = date;
         StatisticalRecords sr = sqliteUtil.selectMonthCyclingRecord(date);
-        tv_record_mDistance.setText(sr.getsDistance() + "");
+        tv_record_mDistance.setText(ddf1.format(sr.getsDistance()));
         tv_record_mTotalTime.setText(FORMATTER_TOTAL.format(sr.getsTotalTime() - TimeZone.getDefault().getRawOffset()));
         tv_record_mFrequency.setText(sr.getsFrequency() + "");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getTotalMonth(selectMonth);
+        getSelectDate(selectDay);
     }
 
     // 设置toolbar返回按钮的监听听

@@ -161,20 +161,25 @@ public class TestService extends Service {
         }
         // 返回CyclingRecord用于保存
         public CyclingRecord getCyclingRecord(){
-            Date date = new Date();
-            long lSysTime1 = date.getTime() / 1000;   //得到秒数，Date类型的getTime()返回毫秒数
-            SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            String sDateTime = sdf.format(date);
             CyclingRecord cyclingRecord = new CyclingRecord();
-            cyclingRecord.setTotalPoint(SwitchJsonString.toCyclingPointString(mCyclingPoints));
-            cyclingRecord.setMaxLantitude(maxLantitude);
-            cyclingRecord.setMaxtLongitude(maxtLongitude);
-            cyclingRecord.setMinLantitude(minLantitude);
-            cyclingRecord.setMintLongitude(mintLongitude);
-            cyclingRecord.setDistance(Double.parseDouble(ddf1.format(distance / 1000)));
-            cyclingRecord.setMaxSpeed(Double.parseDouble(ddf1.format(maxSpeed)));
-            cyclingRecord.setMdateTime(lSysTime1);
-            cyclingRecord.setMdateTimeStr(sDateTime);
+            try {
+                Date date = new Date();
+                long lSysTime1 = date.getTime() / 1000;   //得到秒数，Date类型的getTime()返回毫秒数
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                String sDateTime = sdf.format(date);
+                cyclingRecord.setTotalPoint(SwitchJsonString.toCyclingPointString(mCyclingPoints));
+                cyclingRecord.setMaxLantitude(maxLantitude);
+                cyclingRecord.setMaxtLongitude(maxtLongitude);
+                cyclingRecord.setMinLantitude(minLantitude);
+                cyclingRecord.setMintLongitude(mintLongitude);
+                cyclingRecord.setDistance(Double.parseDouble(ddf1.format(distance / 1000)));
+                cyclingRecord.setMaxSpeed(Double.parseDouble(ddf1.format(maxSpeed)));
+                cyclingRecord.setMdateTime(lSysTime1);
+                cyclingRecord.setMdateTimeStr(sDateTime);
+            }catch (Exception e){
+                Log.e(TAG, e.toString() + "error");
+                return cyclingRecord;
+            }
             return cyclingRecord;
         }
     }
@@ -259,71 +264,77 @@ public class TestService extends Service {
             // map view 销毁后不在处理新接收的位置
             if (location == null)
                 return;
-            LatLng pt1 = new LatLng(mCurrentLantitude, mCurrentLongitude);
-            mLocType = location.getLocType();
+            try {
+                LatLng pt1 = new LatLng(mCurrentLantitude, mCurrentLongitude);
+                mLocType = location.getLocType();
+                Log.e(TAG, mLocType + " code");
+                Log.e(TAG, location.getLatitude() + " la");
+                Log.e(TAG, location.getLongitude() + " lo");
 
-            mCurrentLantitude = location.getLatitude();// 绘制线路需要的数据
-            mCurrentLongitude = location.getLongitude();// 绘制线路需要的数据
-            if (statusRun){
-                if (lastLantitude != mCurrentLantitude || lastLongitude != mCurrentLongitude){
-                    lastLantitude = mCurrentLantitude;
-                    lastLongitude = mCurrentLongitude;
-                    if (isFristLocationAdd){
-                        isFristLocationAdd = false;
-                        minLantitude = mCurrentLantitude;
-                        mintLongitude = mCurrentLongitude;
-                    }
-                    if (minLantitude > mCurrentLantitude){
-                        minLantitude = mCurrentLantitude;
-                    }
-                    if (mintLongitude > mCurrentLongitude){
-                        mintLongitude = mCurrentLongitude;
-                    }
-                    if (maxLantitude < mCurrentLantitude){
-                        maxLantitude = mCurrentLantitude;
-                    }
-                    if (maxtLongitude < mCurrentLongitude){
-                        maxtLongitude = mCurrentLongitude;
-                    }
-                    LatLng pt2 = new LatLng(mCurrentLantitude, mCurrentLongitude);
-                    pts.add(pt2);
-                    CyclingPoint cyclingPoint = new CyclingPoint(mCurrentLantitude, mCurrentLongitude);
-                    mCyclingPoints.add(cyclingPoint);
-                    distance += DistanceUtil. getDistance(pt1, pt2);// 单位米
-                    currentSpeed = location.getSpeed();
-                    if (maxSpeed < currentSpeed){
-                        maxSpeed = currentSpeed;
-                    }
-                    if (!isStop){ // 不可见状态就不发送广播通知更新页面
-                        Log.e(TAG, "是否可见");
-                        try{
-                            Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCASTT");
-                            intent.putExtra("isRing",0);
-                            intent.putExtra("Speed",ddf1.format(currentSpeed));
-                            intent.putExtra("Distance",ddf1.format(distance/1000));
-                            intent.putExtra("MaxSpeed",ddf1.format(maxSpeed));
-                            intent.putExtra("mRadius",location.getRadius());
-                            intent.putExtra("mCurrentLantitude",mCurrentLantitude);
-                            intent.putExtra("mCurrentLongitude",mCurrentLongitude);
-                            intent.putExtra("BDLocation",location);
-                            localBroadcastManager.sendBroadcast(intent); // 发送本地广播
-                        }catch (Exception e){
-                            Log.e(TAG, e.toString());
+                mCurrentLantitude = location.getLatitude();// 绘制线路需要的数据
+                mCurrentLongitude = location.getLongitude();// 绘制线路需要的数据
+                if (statusRun) {
+                    if (lastLantitude != mCurrentLantitude || lastLongitude != mCurrentLongitude) {
+                        lastLantitude = mCurrentLantitude;
+                        lastLongitude = mCurrentLongitude;
+                        if (isFristLocationAdd) {
+                            isFristLocationAdd = false;
+                            minLantitude = mCurrentLantitude;
+                            mintLongitude = mCurrentLongitude;
+                        }
+                        if (minLantitude > mCurrentLantitude) {
+                            minLantitude = mCurrentLantitude;
+                        }
+                        if (mintLongitude > mCurrentLongitude) {
+                            mintLongitude = mCurrentLongitude;
+                        }
+                        if (maxLantitude < mCurrentLantitude) {
+                            maxLantitude = mCurrentLantitude;
+                        }
+                        if (maxtLongitude < mCurrentLongitude) {
+                            maxtLongitude = mCurrentLongitude;
+                        }
+                        LatLng pt2 = new LatLng(mCurrentLantitude, mCurrentLongitude);
+                        pts.add(pt2);
+                        CyclingPoint cyclingPoint = new CyclingPoint(mCurrentLantitude, mCurrentLongitude);
+                        mCyclingPoints.add(cyclingPoint);
+                        distance += DistanceUtil.getDistance(pt1, pt2);// 单位米
+                        currentSpeed = location.getSpeed();
+                        if (maxSpeed < currentSpeed) {
+                            maxSpeed = currentSpeed;
+                        }
+                        if (!isStop) { // 不可见状态就不发送广播通知更新页面
+                            Log.e(TAG, "是否可见");
+                            try {
+                                Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCASTT");
+                                intent.putExtra("isRing", 0);
+                                intent.putExtra("Speed", ddf1.format(currentSpeed));
+                                intent.putExtra("Distance", ddf1.format(distance / 1000));
+                                intent.putExtra("MaxSpeed", ddf1.format(maxSpeed));
+                                intent.putExtra("mRadius", location.getRadius());
+                                intent.putExtra("mCurrentLantitude", mCurrentLantitude);
+                                intent.putExtra("mCurrentLongitude", mCurrentLongitude);
+                                intent.putExtra("BDLocation", location);
+                                localBroadcastManager.sendBroadcast(intent); // 发送本地广播
+                            } catch (Exception e) {
+                                Log.e(TAG, e.toString());
+                            }
                         }
                     }
+                } else {
+                    if (!isStop) {
+                        Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCASTT");
+                        intent.putExtra("isRing", -1);
+                        intent.putExtra("mRadius", location.getRadius());
+                        intent.putExtra("mCurrentLantitude", mCurrentLantitude);
+                        intent.putExtra("mCurrentLongitude", mCurrentLongitude);
+                        intent.putExtra("BDLocation", location);
+                        localBroadcastManager.sendBroadcast(intent); // 发送本地广播
+                    }
                 }
-            }else {
-                if (!isStop) {
-                    Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCASTT");
-                    intent.putExtra("isRing", -1);
-                    intent.putExtra("mRadius", location.getRadius());
-                    intent.putExtra("mCurrentLantitude", mCurrentLantitude);
-                    intent.putExtra("mCurrentLongitude", mCurrentLongitude);
-                    intent.putExtra("BDLocation", location);
-                    localBroadcastManager.sendBroadcast(intent); // 发送本地广播
-                }
+            } catch(Exception e){
+                Log.e(TAG, e.toString()+" error");
             }
-
         }
 
     }

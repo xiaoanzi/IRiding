@@ -3,39 +3,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
-        <include layout="@layout/toolbar"/>
+    <include layout="@layout/toolbar"/>
+    <LinearLayout
+        android:id="@+id/vi_share_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/White">
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dp"
+            android:layout_weight="2">
             <com.baidu.mapapi.map.MapView
                 android:id="@+id/mv_share_bmapView"
                 android:layout_width="match_parent"
-                android:layout_height="320dp"
+                android:layout_height="match_parent"
                 android:clickable="true" />
-            <com.melnykov.fab.FloatingActionButton
-                android:id="@+id/fb_share_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="292dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="16dp"
-                android:src="@drawable/ic_share_white_24dp"
-                fab:fab_colorNormal="@color/accent"
-                fab:fab_colorPressed="@color/accent_pressed"
-                fab:fab_colorRipple="@color/ripple"/>
         </RelativeLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
     <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
         <TableRow>
             <TextView
+                android:id="@+id/tv_share_gpstext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="本次骑行记录："
@@ -130,5 +124,5 @@
                 android:textSize="12sp"/>
         </TableRow>
     </TableLayout>
-    </ScrollView>
+    </LinearLayout>
 </LinearLayout>

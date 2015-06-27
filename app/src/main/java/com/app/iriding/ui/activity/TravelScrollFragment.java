@@ -22,6 +22,7 @@ import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import com.melnykov.fab.FloatingActionButton;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.TimeZone;
  * Created by florentchampigny on 24/04/15.
  */
 public class TravelScrollFragment extends Fragment {
-
+    private NumberFormat ddf1;
     private ObservableScrollView mScrollView;
     private ListView lv_travel_fiverecord;
     private List<CyclingRecord> cyclingRecords = new ArrayList<CyclingRecord>();
@@ -56,6 +57,8 @@ public class TravelScrollFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ddf1 = NumberFormat.getNumberInstance();
+        ddf1.setMaximumFractionDigits(2);
         mScrollView = (ObservableScrollView) view.findViewById(R.id.sc_travel_scrollView);
         tv_travel_recently = (TextView) view.findViewById(R.id.tv_travel_recently);
         tv_travel_sDistance = (TextView) view.findViewById(R.id.tv_travel_sDistance);
@@ -84,7 +87,7 @@ public class TravelScrollFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         SimpleDateFormat sdfH = new SimpleDateFormat("HH");
         StatisticalRecords sr = sqliteUtil.selectTopCyclingRecord();
-        tv_travel_sDistance.setText(sr.getsDistance()+"");
+        tv_travel_sDistance.setText(ddf1.format(sr.getsDistance()));
         tv_travel_sTotalTime.setText(sdfH.format(sr.getsTotalTime() - TimeZone.getDefault().getRawOffset()));
         tv_travel_sFrequency.setText(sr.getsFrequency()+"");
         tv_travel_sMaxSpeed.setText(sr.getsMaxSpeed()+"");

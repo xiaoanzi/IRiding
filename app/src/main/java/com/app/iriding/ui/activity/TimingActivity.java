@@ -60,7 +60,7 @@ import me.drakeet.materialdialog.MaterialDialog;
 public class TimingActivity extends BaseActivity implements View.OnClickListener{
     private final String TAG = "TimingActivity";
     private final int AnimatorTime = 500;
-    private final double MIN_DISTANCE = 0.1;
+    private final double MIN_DISTANCE = 0;
 
     List<LatLng> pts = new ArrayList<LatLng>();// 绘制折线的坐标数组
 
@@ -473,10 +473,10 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                                 cyclingRecord.setRestTimeStr(sDateTimeRest);
                                 cyclingRecord.setAverageSpeed(Double.parseDouble(getAvSpeed(ltotalTime - lrestTime, cyclingRecord.getDistance())));
                                 cyclingRecord.save();
+                                ltotalTime = 0;
+                                lrestTime = 0;
                             }
                         }).start();
-                        ltotalTime = 0;
-                        lrestTime = 0;
                         // 停止前台service
                         Intent intent11 = new Intent(TimingActivity.this, TestService.class);
                         stopService(intent11);
@@ -488,6 +488,7 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                         finish();
                     }
                 } catch (Exception e) {
+                    Toast.makeText(MyApplication.getContext(), e.toString(), Toast.LENGTH_SHORT).show();
                     Log.e(TAG, e.toString());
                 }
             }
@@ -557,12 +558,12 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
             testBind.locationClientStart();// 开启定位
             mBaiduMap.setMyLocationEnabled(true);// 开启图层定位
             myOrientationListener.start();// 开启方向传感器
-            Animator reveal = ViewAnimationUtils.createCircularReveal(infoContainer, p.x, p.y, 0, radius);
-            reveal.setDuration(AnimatorTime);
+/*            Animator reveal = ViewAnimationUtils.createCircularReveal(infoContainer, p.x, p.y, 0, radius);
+            reveal.setDuration(AnimatorTime);*/
             infoContainer.setVisibility(View.VISIBLE);
-            reveal.start();
+//            reveal.start();
         } else {
-            Animator reveal = ViewAnimationUtils.createCircularReveal(
+            /*Animator reveal = ViewAnimationUtils.createCircularReveal(
                     infoContainer, p.x, p.y, radius, 0);
             reveal.addListener(new AnimatorListenerAdapter() {
                 @Override
@@ -573,7 +574,10 @@ public class TimingActivity extends BaseActivity implements View.OnClickListener
                 }
             });
             reveal.setDuration(AnimatorTime);
-            reveal.start();
+            reveal.start();*/
+            infoContainer.setVisibility(View.INVISIBLE);
+            mBaiduMap.setMyLocationEnabled(false);// 关闭图层定位
+            myOrientationListener.stop();// 关闭方向传感器
         }
     }
 
